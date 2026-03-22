@@ -9,10 +9,10 @@ class SolutionSerializer:
     Serializer of a schedule list (Schedule objects) in JSON.
     """
     # Saving input file name, algorithm name and creating output directory
-    def __init__(self, input_file_path: str, algorithm_name: str):
+    def __init__(self, input_file_path: str, algorithm_name: str, output_dir: str = "data/output"):
         self.input_file_path = Path(input_file_path)
         self.algorithm_name = algorithm_name
-        self.output_dir = Path("data/output")
+        self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def serialize(self, solution: Solution):

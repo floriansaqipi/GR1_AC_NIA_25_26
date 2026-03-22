@@ -1,0 +1,850 @@
+{
+    "scheduled_programs": [
+        {
+            "program_id": "nhkworld_japan_fr_nhk_newsline_2026-01-04_0000",
+            "channel_id": 239,
+            "start": 0,
+            "end": 10
+        },
+        {
+            "program_id": "france3_lorraine_f_journal_m_t_o_climat_2026-01-04_0010",
+            "channel_id": 160,
+            "start": 10,
+            "end": 15
+        },
+        {
+            "program_id": "dw_tv_fr_sports_life_2026-01-04_0015",
+            "channel_id": 115,
+            "start": 15,
+            "end": 30
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_0030",
+            "channel_id": 143,
+            "start": 30,
+            "end": 40
+        },
+        {
+            "program_id": "boomerang_fr_tom_et_jerry_show_2026-01-04_0040",
+            "channel_id": 52,
+            "start": 40,
+            "end": 45
+        },
+        {
+            "program_id": "canal_sport360_fr_le_jt_2026-01-04_0045",
+            "channel_id": 81,
+            "start": 45,
+            "end": 75
+        },
+        {
+            "program_id": "telwnantes_fr_m_t_o_2026-01-04_0075",
+            "channel_id": 360,
+            "start": 75,
+            "end": 77
+        },
+        {
+            "program_id": "mezzo_fr_joyce_didonato_il_pomo_d_2026-01-04_0025",
+            "channel_id": 232,
+            "start": 77,
+            "end": 107
+        },
+        {
+            "program_id": "euronews_fr_news_2026-01-04_0108",
+            "channel_id": 130,
+            "start": 108,
+            "end": 120
+        },
+        {
+            "program_id": "tvppolonia_fr_sport_2026-01-04_0120",
+            "channel_id": 353,
+            "start": 120,
+            "end": 124
+        },
+        {
+            "program_id": "autoplustv_fr_a_bord_de_2026-01-04_0124",
+            "channel_id": 30,
+            "start": 124,
+            "end": 128
+        },
+        {
+            "program_id": "canal_sport360_fr_en_p_le_la_soir_e_des_ch_2026-01-04_0124",
+            "channel_id": 81,
+            "start": 128,
+            "end": 158
+        },
+        {
+            "program_id": "autoplustv_fr_p_kin_paris_2026-01-04_0159",
+            "channel_id": 30,
+            "start": 159,
+            "end": 163
+        },
+        {
+            "program_id": "autoplustv_fr_a_bord_de_2026-01-04_0163",
+            "channel_id": 30,
+            "start": 163,
+            "end": 169
+        },
+        {
+            "program_id": "autoplustv_fr_la_minute_conso_2026-01-04_0169",
+            "channel_id": 30,
+            "start": 169,
+            "end": 171
+        },
+        {
+            "program_id": "maisonandtravauxtv_le_journal_de_la_maison_2026-01-04_0172",
+            "channel_id": 226,
+            "start": 172,
+            "end": 173
+        },
+        {
+            "program_id": "cnews_fr_m_t_o_2026-01-04_0173",
+            "channel_id": 90,
+            "start": 173,
+            "end": 174
+        },
+        {
+            "program_id": "boomerang_fr_tom_et_jerry_show_2026-01-04_0175",
+            "channel_id": 52,
+            "start": 175,
+            "end": 185
+        },
+        {
+            "program_id": "rmcsportlive4_fr_cha_ne_v_nementielle_pou_2026-01-04_0000",
+            "channel_id": 295,
+            "start": 185,
+            "end": 215
+        },
+        {
+            "program_id": "autoplustv_fr_a_bord_de_2026-01-04_0215",
+            "channel_id": 30,
+            "start": 215,
+            "end": 218
+        },
+        {
+            "program_id": "autoplustv_fr_p_kin_paris_2026-01-04_0220",
+            "channel_id": 30,
+            "start": 220,
+            "end": 224
+        },
+        {
+            "program_id": "tcmcinema_fr_sailor_et_lula_2026-01-04_0195",
+            "channel_id": 325,
+            "start": 224,
+            "end": 254
+        },
+        {
+            "program_id": "dreamworks_fr_roah_roah_le_petit_lion__2026-01-04_0255",
+            "channel_id": 114,
+            "start": 255,
+            "end": 270
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_0270",
+            "channel_id": 143,
+            "start": 270,
+            "end": 285
+        },
+        {
+            "program_id": "maisonandtravauxtv_le_journal_de_la_maison_2026-01-04_0287",
+            "channel_id": 226,
+            "start": 287,
+            "end": 288
+        },
+        {
+            "program_id": "nickelodeonteen_fr_bob_l_ponge_2026-01-04_0289",
+            "channel_id": 249,
+            "start": 289,
+            "end": 299
+        },
+        {
+            "program_id": "dw_tv_fr_dw_news_2026-01-04_0300",
+            "channel_id": 115,
+            "start": 300,
+            "end": 315
+        },
+        {
+            "program_id": "dw_tv_fr_sports_life_2026-01-04_0315",
+            "channel_id": 115,
+            "start": 315,
+            "end": 330
+        },
+        {
+            "program_id": "france24_fr_l_dition_nuit_le_journal_2026-01-04_0330",
+            "channel_id": 142,
+            "start": 330,
+            "end": 345
+        },
+        {
+            "program_id": "beinsports1_fr_a_se_passe_sur_bein_spor_2026-01-04_0345",
+            "channel_id": 384,
+            "start": 345,
+            "end": 360
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_0360",
+            "channel_id": 204,
+            "start": 360,
+            "end": 368
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_0370",
+            "channel_id": 143,
+            "start": 370,
+            "end": 371
+        },
+        {
+            "program_id": "tvtours_fr_m_t_o_2026-01-04_0371",
+            "channel_id": 355,
+            "start": 371,
+            "end": 375
+        },
+        {
+            "program_id": "telwnantes_fr_m_t_o_2026-01-04_0375",
+            "channel_id": 360,
+            "start": 375,
+            "end": 377
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_0378",
+            "channel_id": 204,
+            "start": 378,
+            "end": 381
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_0381",
+            "channel_id": 204,
+            "start": 381,
+            "end": 387
+        },
+        {
+            "program_id": "telwnantes_fr_m_t_o_2026-01-04_0387",
+            "channel_id": 360,
+            "start": 387,
+            "end": 390
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_0391",
+            "channel_id": 204,
+            "start": 391,
+            "end": 397
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_0400",
+            "channel_id": 143,
+            "start": 400,
+            "end": 401
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_0401",
+            "channel_id": 204,
+            "start": 401,
+            "end": 404
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_0404",
+            "channel_id": 204,
+            "start": 404,
+            "end": 410
+        },
+        {
+            "program_id": "gong_fr_yu_gi_oh_2026-01-04_0410",
+            "channel_id": 178,
+            "start": 410,
+            "end": 440
+        },
+        {
+            "program_id": "france24english_fr_sports_sunday_2026-01-04_0440",
+            "channel_id": 144,
+            "start": 440,
+            "end": 450
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_0450",
+            "channel_id": 143,
+            "start": 450,
+            "end": 464
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_0464",
+            "channel_id": 143,
+            "start": 464,
+            "end": 465
+        },
+        {
+            "program_id": "rmcsportlive4_fr_cha_ne_v_nementielle_pou_2026-01-04_0360",
+            "channel_id": 295,
+            "start": 465,
+            "end": 495
+        },
+        {
+            "program_id": "cnninternational_f_cnn_newsroom_2026-01-04_0480",
+            "channel_id": 89,
+            "start": 495,
+            "end": 525
+        },
+        {
+            "program_id": "autoplustv_fr_a_bord_de_2026-01-04_0526",
+            "channel_id": 30,
+            "start": 526,
+            "end": 534
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_0535",
+            "channel_id": 204,
+            "start": 535,
+            "end": 540
+        },
+        {
+            "program_id": "maisonandtravauxtv_le_journal_de_la_maison_2026-01-04_0540",
+            "channel_id": 226,
+            "start": 540,
+            "end": 541
+        },
+        {
+            "program_id": "autoplustv_fr_a_bord_de_2026-01-04_0542",
+            "channel_id": 30,
+            "start": 542,
+            "end": 549
+        },
+        {
+            "program_id": "telwnantes_fr_m_t_o_2026-01-04_0550",
+            "channel_id": 360,
+            "start": 550,
+            "end": 552
+        },
+        {
+            "program_id": "rmcwow_fr_le_grand_mus_e_gyptien_c_2026-01-04_0531",
+            "channel_id": 298,
+            "start": 552,
+            "end": 582
+        },
+        {
+            "program_id": "topsante_fr_m_t_o_sant_2026-01-04_0583",
+            "channel_id": 363,
+            "start": 583,
+            "end": 587
+        },
+        {
+            "program_id": "euronews_fr_news_2026-01-04_0588",
+            "channel_id": 130,
+            "start": 588,
+            "end": 600
+        },
+        {
+            "program_id": "nhkworld_japan_fr_nhk_newsline_2026-01-04_0600",
+            "channel_id": 239,
+            "start": 600,
+            "end": 610
+        },
+        {
+            "program_id": "lesmarseillais24_2_les_marseillais_2026-01-04_0610",
+            "channel_id": 203,
+            "start": 610,
+            "end": 640
+        },
+        {
+            "program_id": "france3_fr_les_quiquoi_2026-01-04_0640",
+            "channel_id": 169,
+            "start": 640,
+            "end": 642
+        },
+        {
+            "program_id": "maisonandtravauxtv_le_journal_de_la_maison_2026-01-04_0642",
+            "channel_id": 226,
+            "start": 642,
+            "end": 643
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_0644",
+            "channel_id": 144,
+            "start": 644,
+            "end": 645
+        },
+        {
+            "program_id": "rmcsportlive4_fr_cha_ne_v_nementielle_pou_2026-01-04_0540",
+            "channel_id": 295,
+            "start": 645,
+            "end": 675
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0675",
+            "channel_id": 91,
+            "start": 675,
+            "end": 680
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0680",
+            "channel_id": 91,
+            "start": 680,
+            "end": 685
+        },
+        {
+            "program_id": "phoenixcne_fr_phoenix_weather_forecast_2026-01-04_0687",
+            "channel_id": 267,
+            "start": 687,
+            "end": 690
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0690",
+            "channel_id": 91,
+            "start": 690,
+            "end": 694
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0694",
+            "channel_id": 91,
+            "start": 694,
+            "end": 699
+        },
+        {
+            "program_id": "france3_limousin_f_m_t_o_2026-01-04_0700",
+            "channel_id": 159,
+            "start": 700,
+            "end": 705
+        },
+        {
+            "program_id": "france3_limousin_f_outremer_l_info_2026-01-04_0705",
+            "channel_id": 159,
+            "start": 705,
+            "end": 720
+        },
+        {
+            "program_id": "phoenixcne_fr_china_news_live_2026-01-04_0720",
+            "channel_id": 267,
+            "start": 720,
+            "end": 733
+        },
+        {
+            "program_id": "phoenixcne_fr_phoenix_weather_forecast_2026-01-04_0733",
+            "channel_id": 267,
+            "start": 733,
+            "end": 735
+        },
+        {
+            "program_id": "cartoonito_fr_bugs_bunny_constructeurs_2026-01-04_0735",
+            "channel_id": 101,
+            "start": 735,
+            "end": 745
+        },
+        {
+            "program_id": "tv7bordeaux_fr_m_t_o_2026-01-04_0746",
+            "channel_id": 344,
+            "start": 746,
+            "end": 750
+        },
+        {
+            "program_id": "france3_parisile_d_m_t_o_paris_ile_de_franc_2026-01-04_0750",
+            "channel_id": 163,
+            "start": 750,
+            "end": 752
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0753",
+            "channel_id": 91,
+            "start": 753,
+            "end": 758
+        },
+        {
+            "program_id": "autoplustv_fr_le_match_2026-01-04_0758",
+            "channel_id": 30,
+            "start": 758,
+            "end": 766
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0766",
+            "channel_id": 91,
+            "start": 766,
+            "end": 770
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0770",
+            "channel_id": 91,
+            "start": 770,
+            "end": 775
+        },
+        {
+            "program_id": "autoplustv_fr_essai_2026-01-04_0775",
+            "channel_id": 30,
+            "start": 775,
+            "end": 780
+        },
+        {
+            "program_id": "autoplustv_fr_le_match_2026-01-04_0780",
+            "channel_id": 30,
+            "start": 780,
+            "end": 785
+        },
+        {
+            "program_id": "telwnantes_fr_m_t_o_2026-01-04_0786",
+            "channel_id": 360,
+            "start": 786,
+            "end": 794
+        },
+        {
+            "program_id": "eurosport1_fr_chalet_club_2026-01-04_0795",
+            "channel_id": 123,
+            "start": 795,
+            "end": 810
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0811",
+            "channel_id": 91,
+            "start": 811,
+            "end": 821
+        },
+        {
+            "program_id": "comedie_fr_interview_de_rapha_l_mez_2026-01-04_0821",
+            "channel_id": 91,
+            "start": 821,
+            "end": 826
+        },
+        {
+            "program_id": "tvtours_fr_jt_des_sports_2026-01-04_0827",
+            "channel_id": 355,
+            "start": 827,
+            "end": 840
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_0840",
+            "channel_id": 144,
+            "start": 840,
+            "end": 852
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_0852",
+            "channel_id": 144,
+            "start": 852,
+            "end": 853
+        },
+        {
+            "program_id": "maisonandtravauxtv_la_minute_jardin_2026-01-04_0853",
+            "channel_id": 226,
+            "start": 853,
+            "end": 856
+        },
+        {
+            "program_id": "rmcsportlive4_fr_cha_ne_v_nementielle_pou_2026-01-04_0720",
+            "channel_id": 295,
+            "start": 856,
+            "end": 886
+        },
+        {
+            "program_id": "c_sport_fr_bordeaux_b_gles_racing_9_2026-01-04_0850",
+            "channel_id": 53,
+            "start": 886,
+            "end": 916
+        },
+        {
+            "program_id": "maisonandtravauxtv_m_and_t_news_2026-01-04_0919",
+            "channel_id": 226,
+            "start": 919,
+            "end": 927
+        },
+        {
+            "program_id": "maisonandtravauxtv_le_journal_de_la_maison_2026-01-04_0927",
+            "channel_id": 226,
+            "start": 927,
+            "end": 928
+        },
+        {
+            "program_id": "beinsports3_fr_handball_championnat_de__2026-01-04_0900",
+            "channel_id": 386,
+            "start": 928,
+            "end": 958
+        },
+        {
+            "program_id": "canal_live1_fr_a_venir_fulham_liverpool_2026-01-04_0959",
+            "channel_id": 61,
+            "start": 959,
+            "end": 960
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_0960",
+            "channel_id": 144,
+            "start": 960,
+            "end": 974
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_0974",
+            "channel_id": 144,
+            "start": 974,
+            "end": 975
+        },
+        {
+            "program_id": "canal32_fr_mon_meilleur_match_2026-01-04_0975",
+            "channel_id": 97,
+            "start": 975,
+            "end": 990
+        },
+        {
+            "program_id": "cnbceurope_fr_cnbc_meets_2026-01-04_0990",
+            "channel_id": 88,
+            "start": 990,
+            "end": 1020
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_1020",
+            "channel_id": 144,
+            "start": 1020,
+            "end": 1034
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_1034",
+            "channel_id": 144,
+            "start": 1034,
+            "end": 1035
+        },
+        {
+            "program_id": "ligue1_fr_joueurs_de_l_gende_2026-01-04_1037",
+            "channel_id": 204,
+            "start": 1037,
+            "end": 1044
+        },
+        {
+            "program_id": "ligue1_fr_joueurs_de_l_gende_2026-01-04_1044",
+            "channel_id": 204,
+            "start": 1044,
+            "end": 1050
+        },
+        {
+            "program_id": "i24news_fr_i24_news_room_2026-01-04_1050",
+            "channel_id": 395,
+            "start": 1050,
+            "end": 1080
+        },
+        {
+            "program_id": "nhkworld_japan_fr_nhk_newsline_2026-01-04_1080",
+            "channel_id": 239,
+            "start": 1080,
+            "end": 1090
+        },
+        {
+            "program_id": "topsante_fr_dr_sport_2026-01-04_1091",
+            "channel_id": 363,
+            "start": 1091,
+            "end": 1094
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_1094",
+            "channel_id": 143,
+            "start": 1094,
+            "end": 1095
+        },
+        {
+            "program_id": "telwnantes_fr_m_t_o_2026-01-04_1096",
+            "channel_id": 360,
+            "start": 1096,
+            "end": 1098
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_1099",
+            "channel_id": 204,
+            "start": 1099,
+            "end": 1102
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_1102",
+            "channel_id": 204,
+            "start": 1102,
+            "end": 1105
+        },
+        {
+            "program_id": "tv5monde_fr_m_t_o_2026-01-04_1105",
+            "channel_id": 342,
+            "start": 1105,
+            "end": 1110
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_1110",
+            "channel_id": 143,
+            "start": 1110,
+            "end": 1124
+        },
+        {
+            "program_id": "boomerang_1_fr_oggy_et_les_cafards_2026-01-04_1125",
+            "channel_id": 51,
+            "start": 1125,
+            "end": 1130
+        },
+        {
+            "program_id": "tl7saintetienne_fr_m_t_o_2026-01-04_1130",
+            "channel_id": 335,
+            "start": 1130,
+            "end": 1132
+        },
+        {
+            "program_id": "autoplustv_fr_le_match_2026-01-04_1134",
+            "channel_id": 30,
+            "start": 1134,
+            "end": 1139
+        },
+        {
+            "program_id": "piwi_fr_manger_bouger_dormir_2026-01-04_1139",
+            "channel_id": 258,
+            "start": 1139,
+            "end": 1140
+        },
+        {
+            "program_id": "raistoria_fr_rai_news_giorno_2026-01-04_1140",
+            "channel_id": 283,
+            "start": 1140,
+            "end": 1145
+        },
+        {
+            "program_id": "france3_poitou_cha_m_t_o_nouvelle_aquitaine_2026-01-04_1145",
+            "channel_id": 166,
+            "start": 1145,
+            "end": 1150
+        },
+        {
+            "program_id": "france24arabic_fr_journal_2026-01-04_1150",
+            "channel_id": 143,
+            "start": 1150,
+            "end": 1151
+        },
+        {
+            "program_id": "france3_nordpas_de_m_t_o_hauts_de_france_2026-01-04_1152",
+            "channel_id": 162,
+            "start": 1152,
+            "end": 1154
+        },
+        {
+            "program_id": "francetvdocs_fr_au_bout_c_est_la_mer_2026-01-04_1154",
+            "channel_id": 173,
+            "start": 1154,
+            "end": 1184
+        },
+        {
+            "program_id": "france3_rhone_alpe_journal_m_t_o_climat_2026-01-04_1185",
+            "channel_id": 168,
+            "start": 1185,
+            "end": 1200
+        },
+        {
+            "program_id": "france3_rhone_alpe_m_t_o_auvergne_rh_ne_alp_2026-01-04_1200",
+            "channel_id": 168,
+            "start": 1200,
+            "end": 1205
+        },
+        {
+            "program_id": "benficatv_fr_futebol_feminino_ta_a_de_2026-01-04_1134",
+            "channel_id": 47,
+            "start": 1205,
+            "end": 1235
+        },
+        {
+            "program_id": "tvmonaco_fr_y_a_pas_de_plan_te_b_2026-01-04_1235",
+            "channel_id": 351,
+            "start": 1235,
+            "end": 1250
+        },
+        {
+            "program_id": "tv7bordeaux_fr_m_t_o_2026-01-04_1252",
+            "channel_id": 344,
+            "start": 1252,
+            "end": 1255
+        },
+        {
+            "program_id": "eurosport360_5_fr_a_bient_t_sur_eurosport__2026-01-04_1200",
+            "channel_id": 135,
+            "start": 1255,
+            "end": 1285
+        },
+        {
+            "program_id": "2mmaroc_fr_bulletin_m_t_o_2026-01-04_1285",
+            "channel_id": 3,
+            "start": 1285,
+            "end": 1290
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_1290",
+            "channel_id": 144,
+            "start": 1290,
+            "end": 1305
+        },
+        {
+            "program_id": "france24arabic_fr_sports_week_end_2026-01-04_1305",
+            "channel_id": 143,
+            "start": 1305,
+            "end": 1320
+        },
+        {
+            "program_id": "n_tv_fr_nachrichten_2026-01-04_1320",
+            "channel_id": 238,
+            "start": 1320,
+            "end": 1325
+        },
+        {
+            "program_id": "boomerang_1_fr_tom_et_jerry_show_2026-01-04_1325",
+            "channel_id": 51,
+            "start": 1325,
+            "end": 1330
+        },
+        {
+            "program_id": "francetvdocs_fr_le_monde_de_jamy_2026-01-04_1260",
+            "channel_id": 173,
+            "start": 1330,
+            "end": 1360
+        },
+        {
+            "program_id": "maisonandtravauxtv_le_journal_de_la_maison_2026-01-04_1361",
+            "channel_id": 226,
+            "start": 1361,
+            "end": 1362
+        },
+        {
+            "program_id": "france24_fr_le_journal_de_l_afrique_2026-01-04_1364",
+            "channel_id": 142,
+            "start": 1364,
+            "end": 1380
+        },
+        {
+            "program_id": "france3_corse_fr_m_t_o_corse_2026-01-04_1380",
+            "channel_id": 154,
+            "start": 1380,
+            "end": 1382
+        },
+        {
+            "program_id": "nickelodeon_fr_bienvenue_chez_les_loud_2026-01-04_1383",
+            "channel_id": 247,
+            "start": 1383,
+            "end": 1395
+        },
+        {
+            "program_id": "france24english_fr_le_journal_france_24_en_2026-01-04_1395",
+            "channel_id": 144,
+            "start": 1395,
+            "end": 1396
+        },
+        {
+            "program_id": "autoplustv_fr_le_match_2026-01-04_1396",
+            "channel_id": 30,
+            "start": 1396,
+            "end": 1404
+        },
+        {
+            "program_id": "raiuno_fr_tg1_sera_2026-01-04_1405",
+            "channel_id": 307,
+            "start": 1405,
+            "end": 1410
+        },
+        {
+            "program_id": "france24_fr_l_essentiel_le_journal_2026-01-04_1410",
+            "channel_id": 142,
+            "start": 1410,
+            "end": 1420
+        },
+        {
+            "program_id": "telwnantes_fr_m_t_o_2026-01-04_1420",
+            "channel_id": 360,
+            "start": 1420,
+            "end": 1422
+        },
+        {
+            "program_id": "ligue1_fr_best_of_ligue_1_2026-01-04_1430",
+            "channel_id": 204,
+            "start": 1430,
+            "end": 1436
+        }
+    ]
+}

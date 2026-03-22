@@ -1,7 +1,7 @@
 from typing import List, Dict, Tuple, Optional, Set
 from collections import defaultdict
 import bisect
-import heapq
+import random
 
 from models.instance_data import InstanceData
 from models.solution import Solution
@@ -16,13 +16,20 @@ class BeamSearchScheduler:
                  beam_width: int = 50,
                  lookahead_limit: int = 4,
                  density_percentile: int = 25,
+                 random_restarts: int = 0,
+                 random_seed: Optional[int] = None,
                  verbose: bool = True):
         self.instance_data = instance_data
         self.beam_width = beam_width
         self.lookahead_limit = lookahead_limit
         self.density_percentile = density_percentile
+        self.random_restarts = max(0, random_restarts)
+        self.random_seed = random_seed
         self.verbose = verbose
         self.min_d = instance_data.min_duration
+        self.max_candidates_per_state = max(12, min(40, beam_width))
+        self.max_iterations = 5000
+        self.allow_intermediate_stops = True
         
         self._preprocess()
     
@@ -169,7 +176,13 @@ class BeamSearchScheduler:
             prev_ch_id: Previous channel (for switch penalty)
         """
         duration = seg_end - seg_start
-        if duration < self.min_d:
+        prog_duration = prog.end - prog.start
+        required_duration = min(self.min_d, prog_duration)
+
+        if prog_duration < self.min_d and (seg_start != prog.start or seg_end != prog.end):
+            return -999999
+
+        if duration < required_duration:
             return -999999
         
         channel = self.instance_data.channels[ch_idx]
@@ -179,15 +192,14 @@ class BeamSearchScheduler:
         
         # Time preference bonus
         # Per PDF: "the program must fall within the preferred interval with at least D"
-        # This means we check if the SCHEDULED SEGMENT overlaps the preference by >= D
+        # This means we check if the scheduled segment overlaps the preference
+        # by at least the minimum required valid duration for that program.
         for pref in self.prefs:
             if prog.genre == pref.preferred_genre:
-                # Check overlap between our SEGMENT and the preference window
                 ov_start = max(seg_start, pref.start)
                 ov_end = min(seg_end, pref.end)
-                if ov_end - ov_start >= self.min_d:
+                if ov_end - ov_start >= required_duration:
                     score += pref.bonus
-                    break  # Only one bonus per preference match
         
         # Switch penalty
         if prev_ch_id is not None and prev_ch_id != channel.channel_id:
@@ -237,32 +249,35 @@ class BeamSearchScheduler:
             
             # The segment starts at current time (late start if time > prog.start)
             seg_start = time
+            prog_duration = prog.end - prog.start
+            required_duration = min(self.min_d, prog_duration)
             
             # Try different end times
             end_options = set()
             
             # Option 1: Natural program end
             nat_end = min(prog.end, closing)
-            if nat_end - seg_start >= self.min_d:
+            if nat_end - seg_start >= required_duration:
                 end_options.add(nat_end)
             
             # Option 2: Early stops at program boundaries
-            # Optimize: Use bisect to find relevant times
-            start_idx = bisect.bisect_right(self.times, seg_start + self.min_d)
-            end_idx = bisect.bisect_left(self.times, nat_end)
-            
-            for i in range(start_idx, end_idx + 1):
-                if i >= len(self.times):
-                    break
-                t = self.times[i]
-                if t > nat_end:
-                    break
-                end_options.add(t)
-            
-            # Option 3: End at exact min_duration
-            min_end = seg_start + self.min_d
-            if min_end <= nat_end:
-                end_options.add(min_end)
+            if prog_duration >= self.min_d:
+                if self.allow_intermediate_stops:
+                    start_idx = bisect.bisect_right(self.times, seg_start + self.min_d)
+                    end_idx = bisect.bisect_left(self.times, nat_end)
+                    
+                    for i in range(start_idx, end_idx + 1):
+                        if i >= len(self.times):
+                            break
+                        t = self.times[i]
+                        if t > nat_end:
+                            break
+                        end_options.add(t)
+                
+                # Option 3: End at exact min_duration
+                min_end = seg_start + self.min_d
+                if min_end <= nat_end:
+                    end_options.add(min_end)
             
             for seg_end in sorted(end_options):
                 if seg_end > closing:
@@ -310,7 +325,8 @@ class BeamSearchScheduler:
                     continue
                 
                 nat_end = min(prog.end, closing)
-                if nat_end - future_time < self.min_d:
+                required_duration = min(self.min_d, prog.end - prog.start)
+                if nat_end - future_time < required_duration:
                     continue
                 
                 if not self._channel_allowed(ch_idx, future_time, nat_end):
@@ -322,11 +338,18 @@ class BeamSearchScheduler:
                     candidates.append((score, ch_idx, ch_id, prog, future_time, nat_end))
         
         return candidates
+
+    def _candidate_priority(self, candidate: Tuple[int, int, int, Program, int, int]) -> float:
+        return candidate[0] + (self.instance_data.closing_time - candidate[5]) * self.avg_score_per_min
+
+    def _state_priority(self, state: Tuple[int, int, Optional[int], str, int, tuple, frozenset]) -> float:
+        return state[0] + (self.instance_data.closing_time - state[1]) * self.avg_score_per_min
     
-    def _beam_search_core(self) -> Solution:
+    def _beam_search_core(self, rng: Optional[random.Random] = None) -> Solution:
         """
         Core beam search algorithm.
-        Deterministic version.
+        If rng is given, the search keeps the best few options deterministic
+        and samples the rest from a wider candidate pool for diversity.
         """
         opening = self.instance_data.opening_time
         closing = self.instance_data.closing_time
@@ -338,7 +361,7 @@ class BeamSearchScheduler:
         best_solution = (0, [])
         
         iterations = 0
-        max_iterations = 5000  # Safety limit
+        max_iterations = self.max_iterations  # Safety limit
         
         while beam and iterations < max_iterations:
             iterations += 1
@@ -368,12 +391,19 @@ class BeamSearchScheduler:
                 
                 # Sort by score density heuristic: score + potential of remaining time
                 # This prefers candidates that give high score for less time usage
-                candidates.sort(key=lambda x: x[0] + (closing - x[5]) * self.avg_score_per_min, reverse=True)
+                base_take = max(3, self.beam_width // max(1, len(beam)))
+                take_n = min(len(candidates), self.max_candidates_per_state, base_take)
+                candidates.sort(key=self._candidate_priority, reverse=True)
+
+                chosen_candidates = candidates[:take_n]
+                if rng is not None and len(candidates) > take_n:
+                    elite_n = max(1, take_n // 3)
+                    pool_end = min(len(candidates), max(take_n, take_n * 2))
+                    randomized_pool = candidates[elite_n:pool_end]
+                    rng.shuffle(randomized_pool)
+                    chosen_candidates = candidates[:elite_n] + randomized_pool[:max(0, take_n - elite_n)]
                 
-                # Take top candidates
-                take_n = max(3, self.beam_width // len(beam) if len(beam) > 0 else self.beam_width)
-                
-                for i, (seg_score, ch_idx, ch_id, prog, seg_start, seg_end) in enumerate(candidates[:take_n]):
+                for seg_score, ch_idx, ch_id, prog, seg_start, seg_end in chosen_candidates:
                     new_sched = sched_tuple + ((prog.unique_id, ch_id, seg_start, seg_end, seg_score),)
                     new_used = used | {prog.unique_id}
                     new_streak = 1 if prog.genre != prev_genre else g_streak + 1
@@ -392,7 +422,7 @@ class BeamSearchScheduler:
             
             # Keep best states
             # Sort by heuristic: accumulated_score + potential_future_score
-            next_beam.sort(key=lambda x: x[0] + (closing - x[1]) * self.avg_score_per_min, reverse=True)
+            next_beam.sort(key=self._state_priority, reverse=True)
             
             # Deduplicate by (time, prev_ch, genre_streak)
             seen = set()
@@ -509,27 +539,91 @@ class BeamSearchScheduler:
     
     def generate_solution(self) -> Solution:
         """Generate the maximum score solution."""
-        # Adaptive parameters for large instances
-        if self.n_channels > 50:
-            # Optimized: Set to 500 for good balance of speed and score
-            if self.beam_width < 500:
-                if self.verbose:
-                    print(f"Large instance detected ({self.n_channels} channels). Setting beam width to 500 for speed/quality balance.")
-                self.beam_width = 500
+        # Adaptive runtime tuning.
+        # Large IPTV instances need tighter limits to finish in practical time.
+        if self.n_channels > 300:
+            tuned_beam = min(self.beam_width, 80)
+            tuned_lookahead = min(self.lookahead_limit, 1)
+            self.max_candidates_per_state = 16
+            self.max_iterations = 1500
+            self.allow_intermediate_stops = False
+            iter_limit = 0
+            effective_restarts = min(self.random_restarts, 1)
+        elif self.n_channels > 120:
+            tuned_beam = min(self.beam_width, 100)
+            tuned_lookahead = min(self.lookahead_limit, 2)
+            self.max_candidates_per_state = 24
+            self.max_iterations = 2500
+            self.allow_intermediate_stops = False
+            iter_limit = 5
+            effective_restarts = min(self.random_restarts, 1)
+        elif self.n_channels > 50:
+            tuned_beam = min(self.beam_width, 100)
+            tuned_lookahead = min(self.lookahead_limit, 3)
+            self.max_candidates_per_state = 30
+            self.max_iterations = 3500
+            self.allow_intermediate_stops = True
+            iter_limit = 12
+            effective_restarts = min(self.random_restarts, 2)
+        else:
+            tuned_beam = self.beam_width
+            tuned_lookahead = self.lookahead_limit
+            self.max_candidates_per_state = max(12, min(40, self.beam_width))
+            self.max_iterations = 5000
+            self.allow_intermediate_stops = True
+            iter_limit = 50
+            effective_restarts = self.random_restarts
+
+        if tuned_beam != self.beam_width and self.verbose:
+            print(f"Tuning beam width from {self.beam_width} to {tuned_beam} for runtime.")
+        if tuned_lookahead != self.lookahead_limit and self.verbose:
+            print(f"Tuning lookahead from {self.lookahead_limit} to {tuned_lookahead} for runtime.")
+
+        self.beam_width = tuned_beam
+        self.lookahead_limit = tuned_lookahead
+
         if self.verbose:
             print(f"\n{'='*70}")
             print("MAX SCORE SCHEDULER")
             print(f"Channels: {self.n_channels}, Beam: {self.beam_width}")
+            print(f"Lookahead: {self.lookahead_limit}, Candidate cap: {self.max_candidates_per_state}")
+            print(f"Intermediate stops: {'on' if self.allow_intermediate_stops else 'off'}")
             print(f"{'='*70}\n")
         
-        # Strategy: Beam search (deterministic)
+        # Strategy:
+        # - deterministic search when randomness is disabled
+        # - one lightweight randomized pass when randomness is enabled
+        # - extra passes are capped for large instances to keep runtime practical
+        base_seed = self.random_seed if self.random_seed is not None else random.randrange(1, 10**9)
+        primary_rng = random.Random(base_seed) if effective_restarts > 0 else None
+
         if self.verbose:
-            print("Running Beam Search...")
-        sol = self._beam_search_core()
+            mode = "randomized beam search" if primary_rng is not None else "beam search"
+            print(f"Running {mode}...")
+
+        sol = self._beam_search_core(rng=primary_rng)
         
-        # Always run local search, but with fewer iterations for large instances
-        iter_limit = 50 if self.n_channels <= 50 else 20
-        sol = self._local_search(sol, max_iter=iter_limit)
+        if iter_limit > 0:
+            sol = self._local_search(sol, max_iter=iter_limit)
+
+        if effective_restarts > 1:
+            if self.verbose:
+                print(f"Running {effective_restarts - 1} extra randomized pass(es)...")
+
+            best_candidate = sol
+
+            for restart in range(1, effective_restarts):
+                rng = random.Random(base_seed + restart)
+                candidate = self._beam_search_core(rng=rng)
+
+                if candidate.total_score > best_candidate.total_score:
+                    best_candidate = candidate
+                    if self.verbose:
+                        print(f"  Pass {restart + 1}: better raw score {best_candidate.total_score}")
+
+            improved = self._local_search(best_candidate, max_iter=iter_limit) if iter_limit > 0 else best_candidate
+            if improved.total_score > sol.total_score:
+                sol = improved
         
         if self.verbose:
             print(f"  Score: {sol.total_score}")
