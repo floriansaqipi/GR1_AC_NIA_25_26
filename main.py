@@ -32,10 +32,22 @@ def main():
                             help="Heuristic importance for ACO")
     parser_arg.add_argument("--rho", type=float, default=0.15,
                             help="Pheromone evaporation rate for ACO")
-    parser_arg.add_argument("--top-k", type=int, default=3,
-                            help="How many top ants reinforce pheromones in ACO")
     parser_arg.add_argument("--candidate-cap", type=int, default=15,
                             help="Maximum number of top candidate moves examined per ACO step")
+    parser_arg.add_argument("--exploitation-prob", type=float, default=0.75,
+                            help="Probability of taking the strongest current move in ACO")
+    parser_arg.add_argument("--memory-strength", type=float, default=0.5,
+                            help="How strongly time-transition memory influences ACO candidate selection")
+    parser_arg.add_argument("--run-id", default=None,
+                            help="Optional label used to keep outputs from different runs separate")
+
+    # Advanced ACO controls are kept available, but hidden for simpler first-pass tuning.
+    parser_arg.add_argument("--top-k", type=int, default=3, help=argparse.SUPPRESS)
+    parser_arg.add_argument("--tau0", type=float, default=1.0, help=argparse.SUPPRESS)
+    parser_arg.add_argument("--tau-min", type=float, default=0.1, help=argparse.SUPPRESS)
+    parser_arg.add_argument("--tau-max", type=float, default=5.0, help=argparse.SUPPRESS)
+    parser_arg.add_argument("--local-search-iters", type=int, default=8, help=argparse.SUPPRESS)
+    parser_arg.add_argument("--time-bucket-size", type=int, default=60, help=argparse.SUPPRESS)
     
     args = parser_arg.parse_args()
     file_path = args.input_file if args.input_file else select_file()
@@ -50,6 +62,10 @@ def main():
     lookahead = 4
     percentile = 25
 
+    output_dir = args.output_dir
+    if args.algorithm == "aco" and output_dir == "data/output_randomness":
+        output_dir = "data/output_aco_tuning"
+
     if args.algorithm == "aco":
         print('\nRunning Rank-Based ACO Scheduler')
         scheduler = RankBasedAcoScheduler(
@@ -60,9 +76,16 @@ def main():
             beta=args.beta,
             rho=args.rho,
             top_k=args.top_k,
+            tau0=args.tau0,
+            tau_min=args.tau_min,
+            tau_max=args.tau_max,
             candidate_cap=args.candidate_cap,
             lookahead_limit=lookahead,
             density_percentile=percentile,
+            exploitation_prob=args.exploitation_prob,
+            local_search_iterations=args.local_search_iters,
+            time_bucket_size=args.time_bucket_size,
+            memory_strength=args.memory_strength,
             random_seed=args.seed,
             verbose=args.verbose
         )
@@ -89,7 +112,8 @@ def main():
     serializer = SolutionSerializer(
         input_file_path=file_path,
         algorithm_name=algorithm_name,
-        output_dir=args.output_dir
+        output_dir=output_dir,
+        run_id=args.run_id
     )
     serializer.serialize(solution)
 
