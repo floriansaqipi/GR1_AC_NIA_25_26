@@ -176,7 +176,7 @@ Shembull:
 germany_tv_output_aco_rank_r01_1553.json
 ```
 
-## Rezultatet e Plota ACO
+## Rezultatet e plota ACO
 
 Rezultatet e mëposhtme janë marrë nga raporti `Raportet ACO.xlsx`. Për secilën instancë janë paraqitur të gjitha ekzekutimet e regjistruara, ndërsa rreshti më i mirë është shënuar me **bold**.
 
@@ -434,9 +434,9 @@ Rezultatet e mëposhtme janë marrë nga raporti `Raportet ACO.xlsx`. Për secil
 
 </details>
 
-## Përmbledhje e Rezultateve Më të Mira ACO
+## Përmbledhje e rezultateve më të mira ACO
 
-| Instanca | Runs | Best Run | Best Score | Parametrat kryesorë |
+| Instance | Ekzekutimet | Ekzekutimi më i mirë | Rezultati më i mirë | Parametrat kryesorë |
 |---|---:|---|---:|---|
 | australia_iptv | 12 | r10 | 4833 | ants=14, iterations=10, alpha=1.3, beta=2, rho=0.15, candidate_cap=10, exploitation=0.8, memory=0.5 |
 | canada_pw | 10 | r02 | 5972 | ants=14, iterations=10, alpha=1, beta=2, rho=0.15, candidate_cap=10, exploitation=0.8, memory=0.5 |
