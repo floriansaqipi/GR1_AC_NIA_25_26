@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 import bisect
 import random
 
@@ -162,16 +162,48 @@ class RankBasedAcoScheduler(BeamSearchScheduler):
 
         return candidates[-1]
 
-    def _construct_ant_solution(self, rng: random.Random, force_best: bool = False) -> Solution:
-        closing = self.instance_data.closing_time
-        time = self.instance_data.opening_time
-        prev_ch: Optional[int] = None
-        prev_genre = ""
-        prev_prog_id: Optional[str] = None
+    def _prefix_state(self, prefix: List[Schedule]):
+        if not prefix:
+            return (
+                self.instance_data.opening_time,
+                None,
+                "",
+                0,
+                None,
+                set(),
+                0
+            )
+
+        last = prefix[-1]
+        prog_info = self.prog_by_id.get(last.unique_program_id)
+        prev_genre = prog_info[0].genre if prog_info else ""
         genre_streak = 0
-        used_programs: Set[str] = set()
-        scheduled: List[Schedule] = []
-        total_score = 0
+
+        for scheduled in reversed(prefix):
+            scheduled_info = self.prog_by_id.get(scheduled.unique_program_id)
+            scheduled_genre = scheduled_info[0].genre if scheduled_info else ""
+            if scheduled_genre != prev_genre:
+                break
+            genre_streak += 1
+
+        return (
+            last.end,
+            last.channel_id,
+            prev_genre,
+            genre_streak,
+            last.unique_program_id,
+            {scheduled.unique_program_id for scheduled in prefix},
+            sum(scheduled.fitness for scheduled in prefix)
+        )
+
+    def _construct_ant_solution(self,
+                                rng: random.Random,
+                                force_best: bool = False,
+                                prefix: Optional[List[Schedule]] = None) -> Solution:
+        closing = self.instance_data.closing_time
+        prefix = prefix or []
+        time, prev_ch, prev_genre, genre_streak, prev_prog_id, used_programs, total_score = self._prefix_state(prefix)
+        scheduled: List[Schedule] = prefix[:]
 
         while time < closing:
             candidates = self._get_candidates(time, prev_ch, prev_genre, genre_streak, used_programs)
@@ -215,6 +247,96 @@ class RankBasedAcoScheduler(BeamSearchScheduler):
             time = seg_end
 
         return Solution(scheduled, total_score)
+
+    def _local_search_cut_point(self, schedule: List[Schedule]) -> Optional[int]:
+        schedule_len = len(schedule)
+        if schedule_len <= 1:
+            return None
+
+        window_size = max(2, round(schedule_len * 0.2))
+        window_size = min(window_size, 8, schedule_len)
+        weakest_start = 0
+        weakest_density = float("inf")
+        weakest_score = float("inf")
+
+        for start_idx in range(0, schedule_len - window_size + 1):
+            window = schedule[start_idx:start_idx + window_size]
+            window_score = sum(scheduled.fitness for scheduled in window)
+            window_duration = sum(max(1, scheduled.end - scheduled.start) for scheduled in window)
+            density = window_score / window_duration
+
+            if density < weakest_density or (
+                density == weakest_density and window_score < weakest_score
+            ):
+                weakest_density = density
+                weakest_score = window_score
+                weakest_start = start_idx
+
+        return min(max(1, weakest_start), schedule_len - 1)
+
+    def _aco_rebuild_from_prefix(self,
+                                 prefix: List[Schedule],
+                                 seed_offset: int) -> Solution:
+        base_seed = getattr(self, "_run_base_seed", self.random_seed)
+        if base_seed is None:
+            base_seed = random.randrange(1, 10**9)
+
+        local_best = Solution(prefix[:], sum(scheduled.fitness for scheduled in prefix))
+
+        for iteration in range(self.effective_num_iterations):
+            iteration_solutions: List[Solution] = []
+
+            for ant_idx in range(self.effective_num_ants):
+                ant_seed = base_seed + seed_offset + iteration * 1000 + ant_idx
+                ant_rng = random.Random(ant_seed)
+                solution = self._construct_ant_solution(
+                    ant_rng,
+                    force_best=(ant_idx == 0),
+                    prefix=prefix
+                )
+                iteration_solutions.append(solution)
+
+            iteration_solutions.sort(key=lambda solution: solution.total_score, reverse=True)
+            iteration_best = iteration_solutions[0]
+
+            if iteration_best.total_score > local_best.total_score:
+                local_best = iteration_best
+
+            self._evaporate_pheromones()
+            self._deposit_pheromones(iteration_solutions, local_best)
+
+        return local_best
+
+    def _local_search(self, sol: Solution, max_iter: int = 50) -> Solution:
+        """
+        ACO-based local search.
+
+        Find the weakest scoring window in the original ACO solution, keep the
+        prefix before it, and rebuild the remaining tail with the same ACO
+        parameters.
+        """
+        if max_iter <= 0 or not sol.scheduled_programs:
+            return sol
+
+        base_schedule = sol.scheduled_programs[:]
+        cut_idx = self._local_search_cut_point(base_schedule)
+
+        if cut_idx is None:
+            return sol
+
+        prefix = base_schedule[:cut_idx]
+        candidate = self._aco_rebuild_from_prefix(prefix, seed_offset=1_000_000)
+
+        if candidate.total_score > sol.total_score:
+            if self.verbose:
+                print(
+                    f"  Local search improved score "
+                    f"{sol.total_score} -> {candidate.total_score} "
+                    f"from weakest-window cut index {cut_idx}"
+                )
+            return candidate
+
+        return sol
 
     def _evaporate_pheromones(self):
         evaporation_factor = 1.0 - self.rho
@@ -291,12 +413,14 @@ class RankBasedAcoScheduler(BeamSearchScheduler):
             print(f"Ants: {self.effective_num_ants}, Iterations: {self.effective_num_iterations}")
             print(f"alpha={self.alpha}, beta={self.beta}, rho={self.rho}")
             print(f"Candidate cap: {self.effective_candidate_cap}, Top-k: {self.effective_top_k}")
-            print(f"Exploitation probability: {self.exploitation_prob:.2f}, Local search iterations: {self.local_search_iterations}")
+            print(f"Exploitation probability: {self.exploitation_prob:.2f}, ACO local search: {'on' if self.local_search_iterations > 0 else 'off'}")
+            print("Elite carryover: on")
             print(f"Time bucket size: {self.time_bucket_size}, Memory strength: {self.memory_strength:.2f}")
             print(f"Lookahead: {self.lookahead_limit}, Intermediate stops: {'on' if self.allow_intermediate_stops else 'off'}")
             print(f"{'='*70}\n")
 
         base_seed = self.random_seed if self.random_seed is not None else random.randrange(1, 10**9)
+        self._run_base_seed = base_seed
         global_best = Solution([], 0)
 
         for iteration in range(self.effective_num_iterations):
@@ -306,6 +430,11 @@ class RankBasedAcoScheduler(BeamSearchScheduler):
                 ant_rng = random.Random(base_seed + iteration * 1000 + ant_idx)
                 solution = self._construct_ant_solution(ant_rng, force_best=(ant_idx == 0))
                 iteration_solutions.append(solution)
+
+            # Elitist ACO: carry the best solution found so far into the next
+            # ranking step so the colony never forgets a strong path.
+            if global_best.scheduled_programs:
+                iteration_solutions.append(global_best)
 
             iteration_solutions.sort(key=lambda solution: solution.total_score, reverse=True)
             iteration_best = iteration_solutions[0]
