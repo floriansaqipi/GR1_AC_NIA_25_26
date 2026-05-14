@@ -481,6 +481,10 @@ Rezultatet e mëposhtme janë marrë nga raporti `Raportet ACO.xlsx`. Për secil
 
 Rezultatet në këtë seksion janë marrë nga output-et me emër `aco_localsearch_rank`. Këto rezultate përdorin `elite carryover` dhe `weakest-window ACO local search`.
 
+Ekzekutimet `r11-r22` nuk u nisën manualisht një nga një. Për përsëritshmëri u krijua skripta `aco_localsearch_all_runs.ps1`, e cila përmban listën e instancave, `seed base` për secilën instancë dhe matricën e parametrave për `r11-r22`. Skripta thërret `python main.py --algorithm aco` për çdo kombinim instance/run dhe i ruan output-et në folderin përkatës.
+
+File-t `aco_localsearch_excel_plan.tsv` dhe `aco_localsearch_excel_all_runs.tsv` përdoren si plan/raport për Excel. Ato dokumentojnë të njëjtën matricë që përdor skripta: cili input ekzekutohet, cili output folder përdoret, cili seed llogaritet dhe cilat vlera marrin parametrat `ants`, `iterations`, `alpha`, `beta`, `rho`, `candidate_cap`, `exploitation` dhe `memory`. Pra, TSV-të shërbejnë për dokumentim dhe kontroll, ndërsa PS1 e bën ekzekutimin automatik.
+
 Për arsye performance, `uk_iptv` dhe `usa_tv` nuk u përfshinë në këtë raund final të local search, sepse ekzekutimet morën shumë kohë. Për instancat e tjera u përdor e njëjta matricë parametrash `r11-r22`.
 
 <details>
@@ -745,6 +749,8 @@ Local search nuk garanton gjithmonë rezultat më të lartë se ACO pa local sea
 ## Matrica e Parametrave dhe Mesatarizimi
 
 Për raundin final u përdor e njëjta matricë parametrash për instancat e ekzekutuara. Kjo e bën krahasimin më të drejtë, sepse secila instancë provohet me të njëjtat konfigurime `r11-r22`; ndryshon vetëm `seed`, i cili bazohet në instance.
+
+Kjo matricë gjendet në tri vende të sinkronizuara: në skriptën `aco_localsearch_all_runs.ps1`, në TSV-të për Excel dhe në tabelën më poshtë. Qëllimi është që rezultatet të jenë të riprodhueshme dhe të lehta për t'u kontrolluar gjatë prezantimit.
 
 | Run | Ants | Iter | Alpha | Beta | Rho | Cap | Exploit | Memory |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
