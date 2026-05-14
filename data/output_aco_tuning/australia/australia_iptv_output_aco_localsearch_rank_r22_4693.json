@@ -73,57 +73,57 @@
             "end": 270
         },
         {
-            "program_id": "nsw_sydneyfoxsport_fox_sports_news_2026-01-04_0270",
-            "channel_id": 350,
+            "program_id": "10peachadelaide_au_ridiculousness_2026-01-04_0270",
+            "channel_id": 9,
             "start": 270,
             "end": 300
         },
         {
-            "program_id": "nhkworld_japan_au_nhk_newsline_2026-01-04_0300",
+            "program_id": "espn_au_monday_night_postgame_2026-01-04_0305",
+            "channel_id": 189,
+            "start": 305,
+            "end": 320
+        },
+        {
+            "program_id": "abcmebrisbane_au_er_2026-01-04_0305",
+            "channel_id": 109,
+            "start": 320,
+            "end": 350
+        },
+        {
+            "program_id": "abcmebrisbane_au_not_going_out_2026-01-04_0350",
+            "channel_id": 109,
+            "start": 350,
+            "end": 381
+        },
+        {
+            "program_id": "abckids_abctvplusa_odd_squad_2026-01-04_0387",
+            "channel_id": 102,
+            "start": 387,
+            "end": 399
+        },
+        {
+            "program_id": "abckids_abctvplusa_odd_squad_2026-01-04_0399",
+            "channel_id": 102,
+            "start": 399,
+            "end": 411
+        },
+        {
+            "program_id": "nhkworld_japan_au_nhk_newsline_2026-01-04_0420",
             "channel_id": 341,
-            "start": 300,
-            "end": 310
+            "start": 420,
+            "end": 430
         },
         {
-            "program_id": "9hobart_au_nbl_round_15_new_zealand_2026-01-04_0270",
-            "channel_id": 78,
-            "start": 310,
-            "end": 340
+            "program_id": "lifestyle_au_country_house_rescue_2026-01-04_0405",
+            "channel_id": 328,
+            "start": 430,
+            "end": 460
         },
         {
-            "program_id": "cnn_au_cnn_marketplace_africa_2026-01-04_0345",
-            "channel_id": 160,
-            "start": 345,
-            "end": 360
-        },
-        {
-            "program_id": "nhkworld_japan_au_nhk_newsline_2026-01-04_0360",
-            "channel_id": 341,
-            "start": 360,
-            "end": 370
-        },
-        {
-            "program_id": "lifestylefood_2_au_rick_stein_s_road_to_mex_2026-01-04_0370",
-            "channel_id": 329,
-            "start": 370,
-            "end": 400
-        },
-        {
-            "program_id": "10shakeperth_au_the_patrick_star_show_2026-01-04_0400",
-            "channel_id": 19,
-            "start": 400,
-            "end": 425
-        },
-        {
-            "program_id": "abckids_abctv_plus_odd_squad_2026-01-04_0429",
-            "channel_id": 101,
-            "start": 429,
-            "end": 441
-        },
-        {
-            "program_id": "10peachbrisbane_au_friends_2026-01-04_0450",
-            "channel_id": 10,
-            "start": 450,
+            "program_id": "nsw_sydneyfoxsport_constellation_cup_mini_g_2026-01-04_0460",
+            "channel_id": 345,
+            "start": 460,
             "end": 480
         },
         {
@@ -133,33 +133,33 @@
             "end": 510
         },
         {
-            "program_id": "channel9adelaide_a_9news_sunday_2026-01-04_0510",
-            "channel_id": 168,
+            "program_id": "abcnewsadelaide_au_the_pacific_2026-01-04_0510",
+            "channel_id": 119,
             "start": 510,
-            "end": 543
+            "end": 540
         },
         {
-            "program_id": "boxsets_au_get_smart_2026-01-04_0545",
-            "channel_id": 146,
-            "start": 545,
-            "end": 575
+            "program_id": "abcmelbourne_au_abc_news_2026-01-04_0540",
+            "channel_id": 118,
+            "start": 540,
+            "end": 571
         },
         {
-            "program_id": "adelaideunited_a_l_central_coast_mariners_a_2026-01-04_0575",
-            "channel_id": 137,
-            "start": 575,
-            "end": 605
+            "program_id": "9go_canberra_au_ncis_2026-01-04_0571",
+            "channel_id": 63,
+            "start": 571,
+            "end": 601
         },
         {
-            "program_id": "abcmemelbourne_au_would_i_lie_to_you_2026-01-04_0607",
-            "channel_id": 113,
-            "start": 607,
-            "end": 638
+            "program_id": "9lifecanberra_au_gogglebox_australia_2026-01-04_0570",
+            "channel_id": 81,
+            "start": 601,
+            "end": 633
         },
         {
-            "program_id": "abckids_abctvplust_shaun_the_sheep_movie_2026-01-04_0615",
-            "channel_id": 108,
-            "start": 638,
+            "program_id": "abcmeadelaide_au_would_i_lie_to_you_2026-01-04_0637",
+            "channel_id": 117,
+            "start": 637,
             "end": 668
         },
         {
@@ -178,12 +178,12 @@
             "program_id": "10bolddarwin_au_ncis_2026-01-04_0720",
             "channel_id": 2,
             "start": 728,
-            "end": 769
+            "end": 765
         },
         {
             "program_id": "10boldbrisbane_au_ncis_2026-01-04_0745",
             "channel_id": 1,
-            "start": 769,
+            "start": 765,
             "end": 800
         },
         {
@@ -199,10 +199,10 @@
             "end": 840
         },
         {
-            "program_id": "nhkworld_japan_au_nhk_newsline_2026-01-04_0840",
-            "channel_id": 341,
+            "program_id": "abcnewsdarwin_au_abc_news_overnight_2026-01-04_0840",
+            "channel_id": 122,
             "start": 840,
-            "end": 850
+            "end": 854
         },
         {
             "program_id": "mutv_au_match_day_half_time_show_2026-01-04_0855",
@@ -283,8 +283,8 @@
             "end": 1152
         },
         {
-            "program_id": "7matebrisbane_au_nfl_week_18_packers_at_v_2026-01-04_1140",
-            "channel_id": 50,
+            "program_id": "7matesydney_au_nfl_week_18_packers_at_v_2026-01-04_1140",
+            "channel_id": 56,
             "start": 1152,
             "end": 1182
         },

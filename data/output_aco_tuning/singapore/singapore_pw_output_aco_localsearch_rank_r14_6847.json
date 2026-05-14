@@ -1,0 +1,580 @@
+{
+    "scheduled_programs": [
+        {
+            "program_id": "412122_global_week_end_2026-01-04_0060",
+            "channel_id": 107,
+            "start": 60,
+            "end": 65
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0065",
+            "channel_id": 107,
+            "start": 65,
+            "end": 89
+        },
+        {
+            "program_id": "369811_oh_my_lallan_2026-01-04_0089",
+            "channel_id": 53,
+            "start": 89,
+            "end": 109
+        },
+        {
+            "program_id": "369811_oh_my_lallan_2026-01-04_0109",
+            "channel_id": 53,
+            "start": 109,
+            "end": 120
+        },
+        {
+            "program_id": "412122_global_week_end_2026-01-04_0120",
+            "channel_id": 107,
+            "start": 120,
+            "end": 125
+        },
+        {
+            "program_id": "412129_italy_major_men_2026-01-04_0130",
+            "channel_id": 112,
+            "start": 130,
+            "end": 142
+        },
+        {
+            "program_id": "412122_global_week_end_2026-01-04_0150",
+            "channel_id": 107,
+            "start": 150,
+            "end": 158
+        },
+        {
+            "program_id": "412201_marketplace_africa_2026-01-04_0165",
+            "channel_id": 173,
+            "start": 165,
+            "end": 180
+        },
+        {
+            "program_id": "369811_hagola_2026-01-04_0180",
+            "channel_id": 53,
+            "start": 180,
+            "end": 194
+        },
+        {
+            "program_id": "369811_hagola_2026-01-04_0194",
+            "channel_id": 53,
+            "start": 194,
+            "end": 209
+        },
+        {
+            "program_id": "412122_global_week_end_2026-01-04_0209",
+            "channel_id": 107,
+            "start": 209,
+            "end": 214
+        },
+        {
+            "program_id": "369726_news_2026-01-04_0223",
+            "channel_id": 7,
+            "start": 223,
+            "end": 225
+        },
+        {
+            "program_id": "369719_pixels_2026-01-04_0225",
+            "channel_id": 3,
+            "start": 225,
+            "end": 255
+        },
+        {
+            "program_id": "369726_news_2026-01-04_0255",
+            "channel_id": 7,
+            "start": 255,
+            "end": 256
+        },
+        {
+            "program_id": "412190_focus_2026-01-04_0262",
+            "channel_id": 163,
+            "start": 262,
+            "end": 270
+        },
+        {
+            "program_id": "412122_global_week_end_2026-01-04_0270",
+            "channel_id": 107,
+            "start": 270,
+            "end": 278
+        },
+        {
+            "program_id": "412174_ladybird_s_gameshow_2026-01-04_0279",
+            "channel_id": 148,
+            "start": 279,
+            "end": 285
+        },
+        {
+            "program_id": "369726_news_2026-01-04_0285",
+            "channel_id": 7,
+            "start": 285,
+            "end": 286
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0288",
+            "channel_id": 107,
+            "start": 288,
+            "end": 300
+        },
+        {
+            "program_id": "412179_nhk_newsline_2026-01-04_0300",
+            "channel_id": 152,
+            "start": 300,
+            "end": 310
+        },
+        {
+            "program_id": "412178_on_location_2026-01-04_0315",
+            "channel_id": 151,
+            "start": 315,
+            "end": 330
+        },
+        {
+            "program_id": "369767_got_the_spot_2026-01-04_0330",
+            "channel_id": 30,
+            "start": 330,
+            "end": 345
+        },
+        {
+            "program_id": "369722_world_weather_2026-01-04_0359",
+            "channel_id": 5,
+            "start": 359,
+            "end": 360
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0360",
+            "channel_id": 107,
+            "start": 360,
+            "end": 365
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0365",
+            "channel_id": 107,
+            "start": 365,
+            "end": 390
+        },
+        {
+            "program_id": "412095_raa_raa_s_new_games_2026-01-04_0390",
+            "channel_id": 87,
+            "start": 390,
+            "end": 405
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0408",
+            "channel_id": 107,
+            "start": 408,
+            "end": 420
+        },
+        {
+            "program_id": "369726_news_2026-01-04_0420",
+            "channel_id": 7,
+            "start": 420,
+            "end": 435
+        },
+        {
+            "program_id": "369726_sports_sunday_2026-01-04_0436",
+            "channel_id": 7,
+            "start": 436,
+            "end": 450
+        },
+        {
+            "program_id": "369839_l_essentiel_le_journal_2026-01-04_0450",
+            "channel_id": 70,
+            "start": 450,
+            "end": 460
+        },
+        {
+            "program_id": "412174_cricket_2026-01-04_0465",
+            "channel_id": 148,
+            "start": 465,
+            "end": 472
+        },
+        {
+            "program_id": "412174_cubby_2026-01-04_0472",
+            "channel_id": 148,
+            "start": 472,
+            "end": 479
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0480",
+            "channel_id": 107,
+            "start": 480,
+            "end": 485
+        },
+        {
+            "program_id": "369766_sports_life_2026-01-04_0495",
+            "channel_id": 29,
+            "start": 495,
+            "end": 510
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0510",
+            "channel_id": 107,
+            "start": 510,
+            "end": 518
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0518",
+            "channel_id": 107,
+            "start": 518,
+            "end": 528
+        },
+        {
+            "program_id": "369786_crashbox_s1_2026-01-04_0531",
+            "channel_id": 42,
+            "start": 531,
+            "end": 556
+        },
+        {
+            "program_id": "412190_focus_2026-01-04_0561",
+            "channel_id": 163,
+            "start": 561,
+            "end": 570
+        },
+        {
+            "program_id": "412183_64_actu_2026-01-04_0570",
+            "channel_id": 156,
+            "start": 570,
+            "end": 597
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0600",
+            "channel_id": 107,
+            "start": 600,
+            "end": 605
+        },
+        {
+            "program_id": "412136_explorer_happy_parky_sto_2026-01-04_0605",
+            "channel_id": 118,
+            "start": 605,
+            "end": 630
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0630",
+            "channel_id": 107,
+            "start": 630,
+            "end": 638
+        },
+        {
+            "program_id": "412183_basile_s_visit_2026-01-04_0638",
+            "channel_id": 156,
+            "start": 638,
+            "end": 650
+        },
+        {
+            "program_id": "369766_dw_news_2026-01-04_0660",
+            "channel_id": 29,
+            "start": 660,
+            "end": 662
+        },
+        {
+            "program_id": "369766_sports_life_2026-01-04_0662",
+            "channel_id": 29,
+            "start": 662,
+            "end": 675
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0689",
+            "channel_id": 107,
+            "start": 689,
+            "end": 694
+        },
+        {
+            "program_id": "412190_the_51_percent_2026-01-04_0705",
+            "channel_id": 163,
+            "start": 705,
+            "end": 720
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0720",
+            "channel_id": 107,
+            "start": 720,
+            "end": 725
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0725",
+            "channel_id": 107,
+            "start": 725,
+            "end": 750
+        },
+        {
+            "program_id": "369735_bigg_boss_tamil_plus_2026-01-04_0750",
+            "channel_id": 13,
+            "start": 750,
+            "end": 780
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0780",
+            "channel_id": 107,
+            "start": 780,
+            "end": 785
+        },
+        {
+            "program_id": "412174_the_world_record_2026-01-04_0787",
+            "channel_id": 148,
+            "start": 787,
+            "end": 794
+        },
+        {
+            "program_id": "412178_overcoming_challenges_wi_2026-01-04_0795",
+            "channel_id": 151,
+            "start": 795,
+            "end": 810
+        },
+        {
+            "program_id": "369839_l_dition_nuit_le_journal_2026-01-04_0810",
+            "channel_id": 70,
+            "start": 810,
+            "end": 825
+        },
+        {
+            "program_id": "412174_cricket_2026-01-04_0825",
+            "channel_id": 148,
+            "start": 825,
+            "end": 832
+        },
+        {
+            "program_id": "412174_cubby_2026-01-04_0832",
+            "channel_id": 148,
+            "start": 832,
+            "end": 839
+        },
+        {
+            "program_id": "412178_news_2026-01-04_0840",
+            "channel_id": 151,
+            "start": 840,
+            "end": 843
+        },
+        {
+            "program_id": "369767_got_the_spot_2026-01-04_0845",
+            "channel_id": 30,
+            "start": 845,
+            "end": 860
+        },
+        {
+            "program_id": "412190_focus_2026-01-04_0860",
+            "channel_id": 163,
+            "start": 860,
+            "end": 870
+        },
+        {
+            "program_id": "369811_hagola_2026-01-04_0870",
+            "channel_id": 53,
+            "start": 870,
+            "end": 884
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0888",
+            "channel_id": 107,
+            "start": 888,
+            "end": 900
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0900",
+            "channel_id": 107,
+            "start": 900,
+            "end": 905
+        },
+        {
+            "program_id": "412190_sports_sunday_2026-01-04_0920",
+            "channel_id": 163,
+            "start": 920,
+            "end": 930
+        },
+        {
+            "program_id": "412151_ep_8_circuit_world_champ_2026-01-04_0930",
+            "channel_id": 132,
+            "start": 930,
+            "end": 960
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_0960",
+            "channel_id": 107,
+            "start": 960,
+            "end": 965
+        },
+        {
+            "program_id": "412122_news_2026-01-04_0965",
+            "channel_id": 107,
+            "start": 965,
+            "end": 990
+        },
+        {
+            "program_id": "412116_news_2026-01-04_0990",
+            "channel_id": 103,
+            "start": 990,
+            "end": 1020
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_1020",
+            "channel_id": 107,
+            "start": 1020,
+            "end": 1025
+        },
+        {
+            "program_id": "412122_news_2026-01-04_1025",
+            "channel_id": 107,
+            "start": 1025,
+            "end": 1049
+        },
+        {
+            "program_id": "369760_sour_salty_and_alive_s1_2026-01-04_1050",
+            "channel_id": 27,
+            "start": 1050,
+            "end": 1080
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_1080",
+            "channel_id": 107,
+            "start": 1080,
+            "end": 1085
+        },
+        {
+            "program_id": "412143_tv_patrol_regional_2026-01-04_1095",
+            "channel_id": 124,
+            "start": 1095,
+            "end": 1110
+        },
+        {
+            "program_id": "412165_rabat_2023_episode_1_2026-01-04_1110",
+            "channel_id": 142,
+            "start": 1110,
+            "end": 1140
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_1140",
+            "channel_id": 107,
+            "start": 1140,
+            "end": 1145
+        },
+        {
+            "program_id": "369816_hey_duggee_s5_2026-01-04_1147",
+            "channel_id": 57,
+            "start": 1147,
+            "end": 1154
+        },
+        {
+            "program_id": "412101_two_days_and_one_night_4_2026-01-04_1085",
+            "channel_id": 92,
+            "start": 1154,
+            "end": 1185
+        },
+        {
+            "program_id": "412174_cricket_2026-01-04_1185",
+            "channel_id": 148,
+            "start": 1185,
+            "end": 1192
+        },
+        {
+            "program_id": "369816_bluey_s3_2026-01-04_1192",
+            "channel_id": 57,
+            "start": 1192,
+            "end": 1199
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_1200",
+            "channel_id": 107,
+            "start": 1200,
+            "end": 1205
+        },
+        {
+            "program_id": "369726_news_2026-01-04_1214",
+            "channel_id": 7,
+            "start": 1214,
+            "end": 1215
+        },
+        {
+            "program_id": "369766_sports_life_2026-01-04_1215",
+            "channel_id": 29,
+            "start": 1215,
+            "end": 1230
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_1230",
+            "channel_id": 107,
+            "start": 1230,
+            "end": 1238
+        },
+        {
+            "program_id": "369726_news_2026-01-04_1244",
+            "channel_id": 7,
+            "start": 1244,
+            "end": 1245
+        },
+        {
+            "program_id": "412190_focus_2026-01-04_1245",
+            "channel_id": 163,
+            "start": 1245,
+            "end": 1250
+        },
+        {
+            "program_id": "412190_sports_2026-01-04_1250",
+            "channel_id": 163,
+            "start": 1250,
+            "end": 1260
+        },
+        {
+            "program_id": "412122_5_minutes_2026-01-04_1260",
+            "channel_id": 107,
+            "start": 1260,
+            "end": 1265
+        },
+        {
+            "program_id": "412122_news_2026-01-04_1265",
+            "channel_id": 107,
+            "start": 1265,
+            "end": 1289
+        },
+        {
+            "program_id": "369844_anupamaa_2026-01-04_1290",
+            "channel_id": 73,
+            "start": 1290,
+            "end": 1320
+        },
+        {
+            "program_id": "369836_nhk_newsline_2026-01-04_1320",
+            "channel_id": 68,
+            "start": 1320,
+            "end": 1330
+        },
+        {
+            "program_id": "369726_news_2026-01-04_1332",
+            "channel_id": 7,
+            "start": 1332,
+            "end": 1333
+        },
+        {
+            "program_id": "412130_sports_news_2026-01-04_1335",
+            "channel_id": 113,
+            "start": 1335,
+            "end": 1345
+        },
+        {
+            "program_id": "369726_news_2026-01-04_1350",
+            "channel_id": 7,
+            "start": 1350,
+            "end": 1362
+        },
+        {
+            "program_id": "369726_news_2026-01-04_1362",
+            "channel_id": 7,
+            "start": 1362,
+            "end": 1363
+        },
+        {
+            "program_id": "369780_exchange_student_zero_2026-01-04_1365",
+            "channel_id": 38,
+            "start": 1365,
+            "end": 1395
+        },
+        {
+            "program_id": "412178_living_in_the_digital_ag_2026-01-04_1395",
+            "channel_id": 151,
+            "start": 1395,
+            "end": 1410
+        },
+        {
+            "program_id": "369726_news_2026-01-04_1410",
+            "channel_id": 7,
+            "start": 1410,
+            "end": 1419
+        }
+    ]
+}

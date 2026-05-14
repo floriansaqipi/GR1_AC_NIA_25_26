@@ -105,7 +105,10 @@ def main():
     solution = scheduler.generate_solution()
     print(f"\n✓ Generated solution with total score: {solution.total_score}")
 
-    algorithm_name = "aco_rank" if args.algorithm == "aco" else type(scheduler).__name__.lower()
+    if args.algorithm == "aco":
+        algorithm_name = "aco_localsearch_rank" if args.local_search_iters > 0 else "aco_rank"
+    else:
+        algorithm_name = type(scheduler).__name__.lower()
     if args.algorithm == "beam" and not args.disable_randomness and args.restarts > 0:
         algorithm_name += "_random"
 
