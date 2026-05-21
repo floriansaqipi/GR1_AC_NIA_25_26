@@ -12,7 +12,7 @@ Instance	spain_iptv	data/input/spain_iptv.json	data/output_aco_tuning/spain	1100
 Instance	toy	data/input/toy.json	data/output_aco_tuning/toy	1200	r11-r22
 Instance	uk_tv	data/input/uk_tv_input.json	data/output_aco_tuning/uk_tv	1400	r11-r22
 
-Table	Run	Seed Offset	Ants	Iterations	Alpha	Beta	Rho	Candidate Cap	Exploitation	Memory	Local Search	Elite Carryover	Output Name
+Table	Run	Seed	Offset	Ants	Iterations	Alpha	Beta	Rho	Candidate Cap	Exploitation	Memory	Local Search	Elite Carryover	Output Name
 Run	r11	11	12	10	1.3	2.0	0.10	10	0.80	0.50	weakest-window ACO	on	<instance>_output_aco_localsearch_rank_r11_<score>.json
 Run	r12	12	14	10	1.0	2.0	0.15	10	0.80	0.50	weakest-window ACO	on	<instance>_output_aco_localsearch_rank_r12_<score>.json
 Run	r13	13	14	10	1.3	2.0	0.15	10	0.80	0.50	weakest-window ACO	on	<instance>_output_aco_localsearch_rank_r13_<score>.json
