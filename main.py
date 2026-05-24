@@ -64,7 +64,7 @@ def main():
 
     output_dir = args.output_dir
     if args.algorithm == "aco" and output_dir == "data/output_randomness":
-        output_dir = "data/output_aco_tuning"
+        output_dir = "data/output_window_local_search" if args.local_search_iters > 0 else "data/output_aco_tuning"
 
     if args.algorithm == "aco":
         print('\nRunning Rank-Based ACO Scheduler')
@@ -106,7 +106,7 @@ def main():
     print(f"\n✓ Generated solution with total score: {solution.total_score}")
 
     if args.algorithm == "aco":
-        algorithm_name = "aco_localsearch_rank" if args.local_search_iters > 0 else "aco_rank"
+        algorithm_name = "aco_wls_rank" if args.local_search_iters > 0 else "aco_rank"
     else:
         algorithm_name = type(scheduler).__name__.lower()
     if args.algorithm == "beam" and not args.disable_randomness and args.restarts > 0:

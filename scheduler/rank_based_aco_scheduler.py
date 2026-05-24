@@ -162,48 +162,18 @@ class RankBasedAcoScheduler(BeamSearchScheduler):
 
         return candidates[-1]
 
-    def _prefix_state(self, prefix: List[Schedule]):
-        if not prefix:
-            return (
-                self.instance_data.opening_time,
-                None,
-                "",
-                0,
-                None,
-                set(),
-                0
-            )
-
-        last = prefix[-1]
-        prog_info = self.prog_by_id.get(last.unique_program_id)
-        prev_genre = prog_info[0].genre if prog_info else ""
-        genre_streak = 0
-
-        for scheduled in reversed(prefix):
-            scheduled_info = self.prog_by_id.get(scheduled.unique_program_id)
-            scheduled_genre = scheduled_info[0].genre if scheduled_info else ""
-            if scheduled_genre != prev_genre:
-                break
-            genre_streak += 1
-
-        return (
-            last.end,
-            last.channel_id,
-            prev_genre,
-            genre_streak,
-            last.unique_program_id,
-            {scheduled.unique_program_id for scheduled in prefix},
-            sum(scheduled.fitness for scheduled in prefix)
-        )
-
     def _construct_ant_solution(self,
                                 rng: random.Random,
-                                force_best: bool = False,
-                                prefix: Optional[List[Schedule]] = None) -> Solution:
+                                force_best: bool = False) -> Solution:
         closing = self.instance_data.closing_time
-        prefix = prefix or []
-        time, prev_ch, prev_genre, genre_streak, prev_prog_id, used_programs, total_score = self._prefix_state(prefix)
-        scheduled: List[Schedule] = prefix[:]
+        time = self.instance_data.opening_time
+        prev_ch: Optional[int] = None
+        prev_genre = ""
+        prev_prog_id: Optional[str] = None
+        genre_streak = 0
+        used_programs = set()
+        scheduled: List[Schedule] = []
+        total_score = 0
 
         while time < closing:
             candidates = self._get_candidates(time, prev_ch, prev_genre, genre_streak, used_programs)
@@ -248,95 +218,376 @@ class RankBasedAcoScheduler(BeamSearchScheduler):
 
         return Solution(scheduled, total_score)
 
-    def _local_search_cut_point(self, schedule: List[Schedule]) -> Optional[int]:
-        schedule_len = len(schedule)
-        if schedule_len <= 1:
-            return None
+    def _local_search_window_size(self, schedule_len: int) -> int:
+        if schedule_len <= 0:
+            return 0
 
         window_size = max(2, round(schedule_len * 0.2))
-        window_size = min(window_size, 8, schedule_len)
-        weakest_start = 0
-        weakest_density = float("inf")
-        weakest_score = float("inf")
+        return min(window_size, 8, schedule_len)
 
+    def _weakest_windows(self,
+                         schedule: List[Schedule],
+                         max_windows: int) -> List[Tuple[int, int, float]]:
+        schedule_len = len(schedule)
+        window_size = self._local_search_window_size(schedule_len)
+
+        if window_size <= 0 or max_windows <= 0:
+            return []
+
+        windows: List[Tuple[int, int, float, int]] = []
         for start_idx in range(0, schedule_len - window_size + 1):
             window = schedule[start_idx:start_idx + window_size]
             window_score = sum(scheduled.fitness for scheduled in window)
             window_duration = sum(max(1, scheduled.end - scheduled.start) for scheduled in window)
             density = window_score / window_duration
+            windows.append((start_idx, start_idx + window_size, density, window_score))
 
-            if density < weakest_density or (
-                density == weakest_density and window_score < weakest_score
-            ):
-                weakest_density = density
-                weakest_score = window_score
-                weakest_start = start_idx
+        windows.sort(key=lambda item: (item[2], item[3]))
+        selected: List[Tuple[int, int, float]] = []
 
-        return min(max(1, weakest_start), schedule_len - 1)
+        for start_idx, end_idx, density, _ in windows:
+            overlaps = any(start_idx < selected_end and end_idx > selected_start
+                           for selected_start, selected_end, _ in selected)
+            if overlaps:
+                continue
 
-    def _aco_rebuild_from_prefix(self,
-                                 prefix: List[Schedule],
-                                 seed_offset: int) -> Solution:
-        base_seed = getattr(self, "_run_base_seed", self.random_seed)
-        if base_seed is None:
-            base_seed = random.randrange(1, 10**9)
+            selected.append((start_idx, end_idx, density))
+            if len(selected) >= max_windows:
+                break
 
-        local_best = Solution(prefix[:], sum(scheduled.fitness for scheduled in prefix))
+        return selected
 
-        for iteration in range(self.effective_num_iterations):
-            iteration_solutions: List[Solution] = []
+    def _recalculate_schedule(self, schedule: List[Schedule]) -> Optional[Solution]:
+        used_programs = set()
+        recalculated: List[Schedule] = []
+        total_score = 0
+        prev_end = self.instance_data.opening_time
+        prev_ch: Optional[int] = None
+        prev_genre = ""
+        genre_streak = 0
 
-            for ant_idx in range(self.effective_num_ants):
-                ant_seed = base_seed + seed_offset + iteration * 1000 + ant_idx
-                ant_rng = random.Random(ant_seed)
-                solution = self._construct_ant_solution(
-                    ant_rng,
-                    force_best=(ant_idx == 0),
-                    prefix=prefix
+        for scheduled in schedule:
+            if scheduled.start < prev_end or scheduled.end <= scheduled.start:
+                return None
+
+            if scheduled.unique_program_id in used_programs:
+                return None
+
+            prog_info = self.prog_by_id.get(scheduled.unique_program_id)
+            if not prog_info:
+                return None
+
+            prog, ch_idx = prog_info
+            channel_id = self.instance_data.channels[ch_idx].channel_id
+
+            if scheduled.channel_id != channel_id:
+                return None
+
+            if scheduled.start < prog.start or scheduled.end > prog.end:
+                return None
+
+            if not self._channel_allowed(ch_idx, scheduled.start, scheduled.end):
+                return None
+
+            current_streak = genre_streak + 1 if prog.genre == prev_genre else 1
+            if current_streak > self.instance_data.max_consecutive_genre:
+                return None
+
+            score = self._calc_score(prog, ch_idx, scheduled.start, scheduled.end, prev_ch)
+            if score <= -999999:
+                return None
+
+            recalculated.append(Schedule(
+                program_id=prog.program_id,
+                channel_id=channel_id,
+                start=scheduled.start,
+                end=scheduled.end,
+                fitness=score,
+                unique_program_id=prog.unique_id
+            ))
+            total_score += score
+            used_programs.add(prog.unique_id)
+            prev_end = scheduled.end
+            prev_ch = channel_id
+            prev_genre = prog.genre
+            genre_streak = current_streak
+
+        return Solution(recalculated, total_score)
+
+    def _state_before_index(self,
+                            schedule: List[Schedule],
+                            index: int) -> Tuple[Optional[int], str, int]:
+        if index <= 0:
+            return None, "", 0
+
+        previous = schedule[index - 1]
+        prog_info = self.prog_by_id.get(previous.unique_program_id)
+        previous_genre = prog_info[0].genre if prog_info else ""
+        genre_streak = 0
+
+        for scheduled in reversed(schedule[:index]):
+            scheduled_info = self.prog_by_id.get(scheduled.unique_program_id)
+            scheduled_genre = scheduled_info[0].genre if scheduled_info else ""
+            if scheduled_genre != previous_genre:
+                break
+            genre_streak += 1
+
+        return previous.channel_id, previous_genre, genre_streak
+
+    def _replacement_candidates_for_slot(self,
+                                         schedule: List[Schedule],
+                                         target_idx: int,
+                                         max_candidates: int) -> List[Schedule]:
+        target = schedule[target_idx]
+        target_info = self.prog_by_id.get(target.unique_program_id)
+        target_genre = target_info[0].genre if target_info else ""
+        used_programs = {scheduled.unique_program_id for scheduled in schedule}
+        used_programs.discard(target.unique_program_id)
+        prev_ch, prev_genre, genre_streak = self._state_before_index(schedule, target_idx)
+        next_start = (
+            schedule[target_idx + 1].start
+            if target_idx + 1 < len(schedule)
+            else self.instance_data.closing_time
+        )
+        candidates: List[Tuple[float, Schedule]] = []
+
+        for score, ch_idx, ch_id, prog, seg_start, seg_end in self._get_candidates(
+            target.start,
+            prev_ch,
+            prev_genre,
+            genre_streak,
+            used_programs
+        ):
+            if prog.unique_id == target.unique_program_id:
+                continue
+
+            if seg_start < target.start or seg_end > next_start:
+                continue
+
+            replacement = Schedule(
+                program_id=prog.program_id,
+                channel_id=ch_id,
+                start=seg_start,
+                end=seg_end,
+                fitness=score,
+                unique_program_id=prog.unique_id
+            )
+            same_genre_bonus = 0.01 if prog.genre == target_genre else 0.0
+            candidates.append((score + same_genre_bonus, replacement))
+
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        return [replacement for _, replacement in candidates[:max_candidates]]
+
+    def _window_state_priority(self, state, interval_end: int) -> float:
+        local_score, time, *_ = state
+        return local_score + max(0, interval_end - time) * self.avg_score_per_min
+
+    def _repair_window_with_beam(self,
+                                 solution: Solution,
+                                 window_start: int,
+                                 window_end: int,
+                                 beam_width: int,
+                                 candidate_limit: int) -> Optional[Solution]:
+        schedule = solution.scheduled_programs
+        if window_start >= window_end:
+            return None
+
+        interval_start = schedule[window_start].start
+        interval_end = schedule[window_end - 1].end
+        prefix = schedule[:window_start]
+        suffix = schedule[window_end:]
+        outside_used = {
+            scheduled.unique_program_id
+            for scheduled in prefix + suffix
+        }
+        prev_ch, prev_genre, genre_streak = self._state_before_index(schedule, window_start)
+        initial = (
+            0,
+            interval_start,
+            prev_ch,
+            prev_genre,
+            genre_streak,
+            tuple(),
+            frozenset(outside_used)
+        )
+        beam = [initial]
+        best_candidate: Optional[Solution] = None
+        best_score = solution.total_score
+        max_steps = max(8, (window_end - window_start) * 4)
+        steps = 0
+
+        while beam and steps < max_steps:
+            steps += 1
+            next_beam = []
+
+            for state in beam:
+                local_score, time, prev_channel, current_genre, current_streak, local_tuple, used = state
+
+                if time >= interval_end:
+                    candidate = self._recalculate_schedule(prefix + list(local_tuple) + suffix)
+                    if candidate and candidate.total_score > best_score:
+                        best_candidate = candidate
+                        best_score = candidate.total_score
+                    continue
+
+                candidates = self._get_candidates(time, prev_channel, current_genre, current_streak, used)
+                candidates = [
+                    candidate
+                    for candidate in candidates
+                    if candidate[4] >= interval_start and candidate[5] <= interval_end
+                ]
+
+                if not candidates:
+                    idx = bisect.bisect_right(self.times, time)
+                    if idx < len(self.times) and self.times[idx] < interval_end:
+                        next_beam.append((
+                            local_score,
+                            self.times[idx],
+                            prev_channel,
+                            current_genre,
+                            current_streak,
+                            local_tuple,
+                            used
+                        ))
+                    else:
+                        candidate = self._recalculate_schedule(prefix + list(local_tuple) + suffix)
+                        if candidate and candidate.total_score > best_score:
+                            best_candidate = candidate
+                            best_score = candidate.total_score
+                    continue
+
+                candidates.sort(
+                    key=lambda candidate: candidate[0] + max(0, interval_end - candidate[5]) * self.avg_score_per_min,
+                    reverse=True
                 )
-                iteration_solutions.append(solution)
 
-            iteration_solutions.sort(key=lambda solution: solution.total_score, reverse=True)
-            iteration_best = iteration_solutions[0]
+                for seg_score, ch_idx, ch_id, prog, seg_start, seg_end in candidates[:candidate_limit]:
+                    local_schedule = Schedule(
+                        program_id=prog.program_id,
+                        channel_id=ch_id,
+                        start=seg_start,
+                        end=seg_end,
+                        fitness=seg_score,
+                        unique_program_id=prog.unique_id
+                    )
+                    new_streak = current_streak + 1 if prog.genre == current_genre else 1
+                    next_beam.append((
+                        local_score + seg_score,
+                        seg_end,
+                        ch_id,
+                        prog.genre,
+                        new_streak,
+                        local_tuple + (local_schedule,),
+                        used | {prog.unique_id}
+                    ))
 
-            if iteration_best.total_score > local_best.total_score:
-                local_best = iteration_best
+            if not next_beam:
+                break
 
-            self._evaporate_pheromones()
-            self._deposit_pheromones(iteration_solutions, local_best)
+            next_beam.sort(
+                key=lambda state: self._window_state_priority(state, interval_end),
+                reverse=True
+            )
+            unique_beam = []
+            seen = set()
+            for state in next_beam:
+                key = (state[1], state[2], state[4], tuple(s.unique_program_id for s in state[5]))
+                if key in seen:
+                    continue
+                seen.add(key)
+                unique_beam.append(state)
+                if len(unique_beam) >= beam_width:
+                    break
 
-        return local_best
+            beam = unique_beam
+
+        return best_candidate
+
+    def _best_window_replacement(self,
+                                 solution: Solution,
+                                 max_windows: int,
+                                 targets_per_window: int,
+                                 candidates_per_target: int) -> Tuple[Solution, Optional[Tuple[int, int, int]]]:
+        best_solution = solution
+        best_move: Optional[Tuple[int, int, int]] = None
+        windows = self._weakest_windows(solution.scheduled_programs, max_windows)
+
+        for window_start, window_end, _ in windows:
+            window_indices = list(range(window_start, window_end))
+            window_indices.sort(key=lambda idx: solution.scheduled_programs[idx].fitness)
+
+            for target_idx in window_indices[:targets_per_window]:
+                replacements = self._replacement_candidates_for_slot(
+                    solution.scheduled_programs,
+                    target_idx,
+                    candidates_per_target
+                )
+
+                for replacement in replacements:
+                    candidate_schedule = solution.scheduled_programs[:]
+                    candidate_schedule[target_idx] = replacement
+                    candidate = self._recalculate_schedule(candidate_schedule)
+
+                    if candidate and candidate.total_score > best_solution.total_score:
+                        best_solution = candidate
+                        best_move = (window_start, window_end, target_idx)
+
+            repaired = self._repair_window_with_beam(
+                solution,
+                window_start,
+                window_end,
+                beam_width=max(4, min(10, self.effective_candidate_cap)),
+                candidate_limit=max(4, min(12, self.effective_candidate_cap))
+            )
+            if repaired and repaired.total_score > best_solution.total_score:
+                best_solution = repaired
+                best_move = (window_start, window_end, -1)
+
+        return best_solution, best_move
 
     def _local_search(self, sol: Solution, max_iter: int = 50) -> Solution:
         """
-        ACO-based local search.
+        Window local search.
 
-        Find the weakest scoring window in the original ACO solution, keep the
-        prefix before it, and rebuild the remaining tail with the same ACO
-        parameters.
+        ACO produces the global best once. After that, this method only tries
+        small local replacement moves inside the weakest score-density windows.
         """
         if max_iter <= 0 or not sol.scheduled_programs:
             return sol
 
-        base_schedule = sol.scheduled_programs[:]
-        cut_idx = self._local_search_cut_point(base_schedule)
+        best = self._recalculate_schedule(sol.scheduled_programs) or sol
+        initial_score = best.total_score
+        max_passes = max(1, min(max_iter, 8))
+        max_windows = 2 if len(best.scheduled_programs) > 80 or self.n_channels > 300 else 3
+        targets_per_window = 2
+        candidates_per_target = min(10, self.effective_candidate_cap)
 
-        if cut_idx is None:
-            return sol
+        for _ in range(max_passes):
+            candidate, move = self._best_window_replacement(
+                best,
+                max_windows=max_windows,
+                targets_per_window=targets_per_window,
+                candidates_per_target=candidates_per_target
+            )
 
-        prefix = base_schedule[:cut_idx]
-        candidate = self._aco_rebuild_from_prefix(prefix, seed_offset=1_000_000)
+            if candidate.total_score <= best.total_score:
+                break
 
-        if candidate.total_score > sol.total_score:
             if self.verbose:
+                window_start, window_end, target_idx = move if move else (-1, -1, -1)
+                move_label = "full-window repair" if target_idx == -1 else f"replacement at index {target_idx}"
                 print(
-                    f"  Local search improved score "
-                    f"{sol.total_score} -> {candidate.total_score} "
-                    f"from weakest-window cut index {cut_idx}"
+                    f"  Window local search improved score "
+                    f"{best.total_score} -> {candidate.total_score} "
+                    f"in window [{window_start}, {window_end}) "
+                    f"using {move_label}"
                 )
-            return candidate
+            best = candidate
 
-        return sol
+        if self.verbose and best.total_score == initial_score:
+            print("  Window local search found no improving replacement")
+
+        return best
 
     def _evaporate_pheromones(self):
         evaporation_factor = 1.0 - self.rho
@@ -413,14 +664,13 @@ class RankBasedAcoScheduler(BeamSearchScheduler):
             print(f"Ants: {self.effective_num_ants}, Iterations: {self.effective_num_iterations}")
             print(f"alpha={self.alpha}, beta={self.beta}, rho={self.rho}")
             print(f"Candidate cap: {self.effective_candidate_cap}, Top-k: {self.effective_top_k}")
-            print(f"Exploitation probability: {self.exploitation_prob:.2f}, ACO local search: {'on' if self.local_search_iterations > 0 else 'off'}")
+            print(f"Exploitation probability: {self.exploitation_prob:.2f}, Window local search: {'on' if self.local_search_iterations > 0 else 'off'}")
             print("Elite carryover: on")
             print(f"Time bucket size: {self.time_bucket_size}, Memory strength: {self.memory_strength:.2f}")
             print(f"Lookahead: {self.lookahead_limit}, Intermediate stops: {'on' if self.allow_intermediate_stops else 'off'}")
             print(f"{'='*70}\n")
 
         base_seed = self.random_seed if self.random_seed is not None else random.randrange(1, 10**9)
-        self._run_base_seed = base_seed
         global_best = Solution([], 0)
 
         for iteration in range(self.effective_num_iterations):

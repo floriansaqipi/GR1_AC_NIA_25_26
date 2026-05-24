@@ -1,6 +1,6 @@
 <table border="0">
  <tr>
-    <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/University_of_Prishtina_logo.svg/1200px-University_of_Prishtina_logo.svg.png" width="150" alt="University Logo" /></td>
+    <td><img src="docs/university_of_prishtina_logo.svg" width="150" alt="Logo e Universitetit të Prishtinës" /></td>
     <td>
       <p>Universiteti i Prishtinës</p>
       <p>Fakulteti i Inxhinierisë Elektrike dhe Kompjuterike</p>
@@ -117,7 +117,7 @@ Parametrat kryesorë të ekspozuar në CLI janë:
 - `--memory-strength`: ndikimi i memory në peshën e kandidatit
 - `--seed`: vlerë për riprodhueshmëri
 - `--run-id`: etiketë për të ruajtur çdo run veçmas
-- `--local-search-iters`: numri i tentimeve të ACO local search pas iterimeve kryesore; vlera `0` e çaktivizon
+- `--local-search-iters`: numri maksimal i kalimeve të Window Local Search pas iterimeve kryesore të ACO-së; vlera `0` e çaktivizon
 
 Parametrat më të avancuar ekzistojnë në kod, por për eksperimentimin fillestar janë mbajtur me vlera fikse:
 
@@ -149,28 +149,40 @@ Në iterimet e ardhshme, nëse një ant ndodhet në një situatë të ngjashme, 
 
 Memory gjithashtu avullon me kohë, njësoj si feromoni. Kjo e lejon algoritmin të mbajë mend sinjale të mira, por të mos bllokohet përgjithmonë në vendime të hershme.
 
-## ACO Local Search
+## Window Local Search
 
-Pas përfundimit të iterimeve kryesore të ACO-së, zgjidhja më e mirë kalon në një fazë përmirësimi lokale. Kjo fazë nuk e rindërton orarin me greedy, por përdor përsëri ACO.
+Në mënyrë të thjeshtë, `Window Local Search` është një fazë që e merr orarin më të mirë të ACO-së dhe e përmirëson lokalisht. Ai nuk e nis kërkimin nga zero, por kërkon pjesët më të dobëta të orarit dhe provon ndërrime të vogla vetëm aty.
+
+Pas përfundimit të iterimeve kryesore të ACO-së, zgjidhja më e mirë (`global_best`) kalon në një fazë lokale përmirësimi. Kjo fazë punon vetëm mbi orarin ekzistues dhe provon ndryshime të vogla lokale që mund ta rrisin score-in.
 
 Logjika është:
 
 - merret `global_best` nga ACO
-- gjendet zona më e dobët e orarit sipas score-it për minutë
-- ruhet prefix-i para asaj zone
-- pjesa pas saj rindërtohet me ants, pheromone, heuristic dhe memory
-- nëse zgjidhja e re ka score më të lartë, ajo pranohet
+- gjenden dritaret më të dobëta të orarit sipas `score / duration`
+- brenda këtyre dritareve provohen zëvendësime të programeve me score më të ulët
+- nëse zëvendësimi i vetëm nuk mjafton, riparohet vetëm ajo dritare me një beam search lokal të kufizuar
+- çdo kandidat validohet përsëri me të gjitha constraints
+- kandidati pranohet vetëm nëse score total rritet
 
-Zona më e dobët gjendet me `weakest-window`. Scheduler shikon dritare të vogla programesh radhazi, rreth `20%` të orarit, por jo më shumë se `8` programe. Dritarja me dendësinë më të ulët të score-it përdoret si sinjal se ku ka më shumë potencial për përmirësim.
+Dritarja lokale llogaritet si rreth `20%` e numrit të programeve në orar, por jo më pak se `2` dhe jo më shumë se `8` programe. Kjo e mban kërkimin lokal mjaftueshëm të vogël për të qenë i shpejtë.
 
-Ky local search është i mbrojtshëm sepse nuk është random dhe nuk përdor një algoritëm tjetër. Ai përdor të njëjtat parametra të ACO-së, por nis nga një prefix i ruajtur i zgjidhjes aktuale.
+Shembull i thjeshtë:
+
+```text
+P1 score 90
+P2 score 85
+P3 score 20
+P4 score 15
+P5 score 80
+```
+
+Nëse dritarja më e dobët është `P3-P4`, local search nuk e rindërton krejt orarin. Ai provon të zëvendësojë `P3` ose `P4`, ose të riparojë vetëm intervalin kohor të tyre. Nëse gjen p.sh. `Q1 score 45` që përshtatet në të njëjtën hapësirë dhe nuk thyen constraints, atëherë orari i ri pranohet vetëm nëse score total bëhet më i lartë.
 
 Output-et e këtij varianti ruhen me emrin:
 
 ```text
-<instance>_output_aco_localsearch_rank_<run_id>_<score>.json
+<instance>_output_aco_wls_rank_<run_id>_<score>.json
 ```
-
 ## Hyperparameter Tuning
 
 Për ACO u shtua mundësia e ekzekutimit të shumë konfigurimeve me parametra të ndryshëm. Kjo bëhet për të analizuar se cilat vlera japin score më të mirë për instanca të ndryshme.
@@ -477,33 +489,31 @@ Rezultatet e mëposhtme janë marrë nga raporti `Raportet ACO.xlsx`. Për secil
 | uk_tv | 10 | r09 | 2202 | ants=14, iterations=10, alpha=1.3, beta=2, rho=0.15, candidate_cap=12, exploitation=0.8, memory=0.5 |
 | usa_tv | 10 | r10 | 3575 | ants=14, iterations=10, alpha=1.3, beta=2, rho=0.15, candidate_cap=10, exploitation=0.85, memory=0.7 |
 
-## Rezultatet ACO me Local Search
+## Rezultatet ACO me Window Local Search
 
-Rezultatet në këtë seksion janë marrë nga output-et me emër `aco_localsearch_rank`. Këto rezultate përdorin `elite carryover` dhe `weakest-window ACO local search`.
+Rezultatet në këtë seksion janë marrë nga output-et aktuale me emër `aco_wls_rank`. Këto rezultate përdorin `elite carryover`, `time-transition memory` dhe Window Local Search pas `global_best` të ACO-së.
 
-Ekzekutimet `r11-r22` nuk u nisën manualisht një nga një. Për përsëritshmëri u krijua skripta `aco_localsearch_all_runs.ps1`, e cila përmban listën e instancave, `seed base` për secilën instancë dhe matricën e parametrave për `r11-r22`. Skripta thërret `python main.py --algorithm aco` për çdo kombinim instance/run dhe i ruan output-et në folderin përkatës.
+Ekzekutimet `r11-r22` mund të nisen automatikisht me skriptën `aco_wls_all_runs.ps1`. Skripta përmban listën e instancave, `seed base` për secilën instancë dhe matricën e parametrave për `r11-r22`. Ajo thërret `python main.py --algorithm aco` për çdo kombinim instance/run dhe i ruan output-et në `data/output_window_local_search/<instance>`.
 
-File-t `aco_localsearch_excel_plan.tsv` dhe `aco_localsearch_excel_all_runs.tsv` përdoren si plan/raport për Excel. Ato dokumentojnë të njëjtën matricë që përdor skripta: cili input ekzekutohet, cili output folder përdoret, cili seed llogaritet dhe cilat vlera marrin parametrat `ants`, `iterations`, `alpha`, `beta`, `rho`, `candidate_cap`, `exploitation` dhe `memory`. Pra, TSV-të shërbejnë për dokumentim dhe kontroll, ndërsa PS1 e bën ekzekutimin automatik.
-
-Për arsye performance, `uk_iptv` dhe `usa_tv` nuk u përfshinë në këtë raund final të local search, sepse ekzekutimet morën shumë kohë. Për instancat e tjera u përdor e njëjta matricë parametrash `r11-r22`.
+Për arsye performance, `uk_iptv`, `usa_tv`, `us_iptv` dhe input-et YouTube nuk janë pjesë e batch-it final të Window Local Search. Për instancat e ekzekutuara u përdor e njëjta matricë parametrash `r11-r22`, me ndryshim vetëm te `seed base` i instancës.
 
 <details>
-<summary><strong>australia_iptv</strong> - 12 runs, best score 4890 (r20)</summary>
+<summary><strong>australia_iptv</strong> - 12 runs, best score 4968 (r12)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 4732 | australia_iptv_output_aco_localsearch_rank_r11_4732.json |
-| r12 | 4835 | australia_iptv_output_aco_localsearch_rank_r12_4835.json |
-| r13 | 4692 | australia_iptv_output_aco_localsearch_rank_r13_4692.json |
-| r14 | 4707 | australia_iptv_output_aco_localsearch_rank_r14_4707.json |
-| r15 | 4719 | australia_iptv_output_aco_localsearch_rank_r15_4719.json |
-| r16 | 4675 | australia_iptv_output_aco_localsearch_rank_r16_4675.json |
-| r17 | 4655 | australia_iptv_output_aco_localsearch_rank_r17_4655.json |
-| r18 | 4597 | australia_iptv_output_aco_localsearch_rank_r18_4597.json |
-| r19 | 4735 | australia_iptv_output_aco_localsearch_rank_r19_4735.json |
-| **r20** | **4890** | **australia_iptv_output_aco_localsearch_rank_r20_4890.json** |
-| r21 | 4877 | australia_iptv_output_aco_localsearch_rank_r21_4877.json |
-| r22 | 4693 | australia_iptv_output_aco_localsearch_rank_r22_4693.json |
+| r11 | 4917 | australia_iptv_output_aco_wls_rank_r11_4917.json |
+| **r12** | **4968** | **australia_iptv_output_aco_wls_rank_r12_4968.json** |
+| r13 | 4703 | australia_iptv_output_aco_wls_rank_r13_4703.json |
+| r14 | 4740 | australia_iptv_output_aco_wls_rank_r14_4740.json |
+| r15 | 4847 | australia_iptv_output_aco_wls_rank_r15_4847.json |
+| r16 | 4854 | australia_iptv_output_aco_wls_rank_r16_4854.json |
+| r17 | 4853 | australia_iptv_output_aco_wls_rank_r17_4853.json |
+| r18 | 4862 | australia_iptv_output_aco_wls_rank_r18_4862.json |
+| r19 | 4854 | australia_iptv_output_aco_wls_rank_r19_4854.json |
+| r20 | 4917 | australia_iptv_output_aco_wls_rank_r20_4917.json |
+| r21 | 4959 | australia_iptv_output_aco_wls_rank_r21_4959.json |
+| r22 | 4773 | australia_iptv_output_aco_wls_rank_r22_4773.json |
 
 </details>
 
@@ -512,198 +522,198 @@ Për arsye performance, `uk_iptv` dhe `usa_tv` nuk u përfshinë në këtë raun
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 5799 | canada_pw_output_aco_localsearch_rank_r11_5799.json |
-| r12 | 5935 | canada_pw_output_aco_localsearch_rank_r12_5935.json |
-| r13 | 5877 | canada_pw_output_aco_localsearch_rank_r13_5877.json |
-| r14 | 5909 | canada_pw_output_aco_localsearch_rank_r14_5909.json |
-| r15 | 5878 | canada_pw_output_aco_localsearch_rank_r15_5878.json |
-| r16 | 5878 | canada_pw_output_aco_localsearch_rank_r16_5878.json |
-| r17 | 5862 | canada_pw_output_aco_localsearch_rank_r17_5862.json |
-| r18 | 5891 | canada_pw_output_aco_localsearch_rank_r18_5891.json |
-| **r19** | **5938** | **canada_pw_output_aco_localsearch_rank_r19_5938.json** |
-| r20 | 5913 | canada_pw_output_aco_localsearch_rank_r20_5913.json |
-| r21 | 5916 | canada_pw_output_aco_localsearch_rank_r21_5916.json |
-| r22 | 5845 | canada_pw_output_aco_localsearch_rank_r22_5845.json |
+| r11 | 5892 | canada_pw_output_aco_wls_rank_r11_5892.json |
+| r12 | 5935 | canada_pw_output_aco_wls_rank_r12_5935.json |
+| r13 | 5890 | canada_pw_output_aco_wls_rank_r13_5890.json |
+| r14 | 5864 | canada_pw_output_aco_wls_rank_r14_5864.json |
+| r15 | 5879 | canada_pw_output_aco_wls_rank_r15_5879.json |
+| r16 | 5874 | canada_pw_output_aco_wls_rank_r16_5874.json |
+| r17 | 5864 | canada_pw_output_aco_wls_rank_r17_5864.json |
+| r18 | 5902 | canada_pw_output_aco_wls_rank_r18_5902.json |
+| **r19** | **5938** | **canada_pw_output_aco_wls_rank_r19_5938.json** |
+| r20 | 5933 | canada_pw_output_aco_wls_rank_r20_5933.json |
+| r21 | 5831 | canada_pw_output_aco_wls_rank_r21_5831.json |
+| r22 | 5815 | canada_pw_output_aco_wls_rank_r22_5815.json |
 
 </details>
 
 <details>
-<summary><strong>china_pw</strong> - 12 runs, best score 2837 (r13)</summary>
+<summary><strong>china_pw</strong> - 12 runs, best score 2869 (r12)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 2818 | china_pw_output_aco_localsearch_rank_r11_2818.json |
-| r12 | 2835 | china_pw_output_aco_localsearch_rank_r12_2835.json |
-| **r13** | **2837** | **china_pw_output_aco_localsearch_rank_r13_2837.json** |
-| r14 | 2835 | china_pw_output_aco_localsearch_rank_r14_2835.json |
-| r15 | 2835 | china_pw_output_aco_localsearch_rank_r15_2835.json |
-| r16 | 2835 | china_pw_output_aco_localsearch_rank_r16_2835.json |
-| r17 | 2835 | china_pw_output_aco_localsearch_rank_r17_2835.json |
-| r18 | 2829 | china_pw_output_aco_localsearch_rank_r18_2829.json |
-| r19 | 2829 | china_pw_output_aco_localsearch_rank_r19_2829.json |
-| r20 | 2823 | china_pw_output_aco_localsearch_rank_r20_2823.json |
-| r21 | 2795 | china_pw_output_aco_localsearch_rank_r21_2795.json |
-| r22 | 2811 | china_pw_output_aco_localsearch_rank_r22_2811.json |
+| r11 | 2868 | china_pw_output_aco_wls_rank_r11_2868.json |
+| **r12** | **2869** | **china_pw_output_aco_wls_rank_r12_2869.json** |
+| r13 | 2869 | china_pw_output_aco_wls_rank_r13_2869.json |
+| r14 | 2869 | china_pw_output_aco_wls_rank_r14_2869.json |
+| r15 | 2869 | china_pw_output_aco_wls_rank_r15_2869.json |
+| r16 | 2869 | china_pw_output_aco_wls_rank_r16_2869.json |
+| r17 | 2869 | china_pw_output_aco_wls_rank_r17_2869.json |
+| r18 | 2863 | china_pw_output_aco_wls_rank_r18_2863.json |
+| r19 | 2863 | china_pw_output_aco_wls_rank_r19_2863.json |
+| r20 | 2839 | china_pw_output_aco_wls_rank_r20_2839.json |
+| r21 | 2795 | china_pw_output_aco_wls_rank_r21_2795.json |
+| r22 | 2795 | china_pw_output_aco_wls_rank_r22_2795.json |
 
 </details>
 
 <details>
-<summary><strong>croatia_tv</strong> - 12 runs, best score 2203 (r11-r20)</summary>
+<summary><strong>croatia_tv</strong> - 12 runs, best score 2203 (r11)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| **r11** | **2203** | **croatia_tv_output_aco_localsearch_rank_r11_2203.json** |
-| r12 | 2203 | croatia_tv_output_aco_localsearch_rank_r12_2203.json |
-| r13 | 2203 | croatia_tv_output_aco_localsearch_rank_r13_2203.json |
-| r14 | 2203 | croatia_tv_output_aco_localsearch_rank_r14_2203.json |
-| r15 | 2203 | croatia_tv_output_aco_localsearch_rank_r15_2203.json |
-| r16 | 2203 | croatia_tv_output_aco_localsearch_rank_r16_2203.json |
-| r17 | 2203 | croatia_tv_output_aco_localsearch_rank_r17_2203.json |
-| r18 | 2203 | croatia_tv_output_aco_localsearch_rank_r18_2203.json |
-| r19 | 2203 | croatia_tv_output_aco_localsearch_rank_r19_2203.json |
-| r20 | 2203 | croatia_tv_output_aco_localsearch_rank_r20_2203.json |
-| r21 | 2199 | croatia_tv_output_aco_localsearch_rank_r21_2199.json |
-| r22 | 2199 | croatia_tv_output_aco_localsearch_rank_r22_2199.json |
+| **r11** | **2203** | **croatia_tv_output_aco_wls_rank_r11_2203.json** |
+| r12 | 2203 | croatia_tv_output_aco_wls_rank_r12_2203.json |
+| r13 | 2203 | croatia_tv_output_aco_wls_rank_r13_2203.json |
+| r14 | 2203 | croatia_tv_output_aco_wls_rank_r14_2203.json |
+| r15 | 2203 | croatia_tv_output_aco_wls_rank_r15_2203.json |
+| r16 | 2203 | croatia_tv_output_aco_wls_rank_r16_2203.json |
+| r17 | 2203 | croatia_tv_output_aco_wls_rank_r17_2203.json |
+| r18 | 2203 | croatia_tv_output_aco_wls_rank_r18_2203.json |
+| r19 | 2203 | croatia_tv_output_aco_wls_rank_r19_2203.json |
+| r20 | 2203 | croatia_tv_output_aco_wls_rank_r20_2203.json |
+| r21 | 2202 | croatia_tv_output_aco_wls_rank_r21_2202.json |
+| r22 | 2202 | croatia_tv_output_aco_wls_rank_r22_2202.json |
 
 </details>
 
 <details>
-<summary><strong>france_iptv</strong> - 12 runs, best score 11026 (r14)</summary>
+<summary><strong>france_iptv</strong> - 12 runs, best score 11425 (r14)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 10942 | france_iptv_output_aco_localsearch_rank_r11_10942.json |
-| r12 | 10681 | france_iptv_output_aco_localsearch_rank_r12_10681.json |
-| r13 | 10689 | france_iptv_output_aco_localsearch_rank_r13_10689.json |
-| **r14** | **11026** | **france_iptv_output_aco_localsearch_rank_r14_11026.json** |
-| r15 | 10857 | france_iptv_output_aco_localsearch_rank_r15_10857.json |
-| r16 | 10883 | france_iptv_output_aco_localsearch_rank_r16_10883.json |
-| r17 | 10883 | france_iptv_output_aco_localsearch_rank_r17_10883.json |
-| r18 | 10883 | france_iptv_output_aco_localsearch_rank_r18_10883.json |
-| r19 | 10883 | france_iptv_output_aco_localsearch_rank_r19_10883.json |
-| r20 | 10880 | france_iptv_output_aco_localsearch_rank_r20_10880.json |
-| r21 | 10677 | france_iptv_output_aco_localsearch_rank_r21_10677.json |
-| r22 | 10864 | france_iptv_output_aco_localsearch_rank_r22_10864.json |
+| r11 | 11391 | france_iptv_output_aco_wls_rank_r11_11391.json |
+| r12 | 10804 | france_iptv_output_aco_wls_rank_r12_10804.json |
+| r13 | 10912 | france_iptv_output_aco_wls_rank_r13_10912.json |
+| **r14** | **11425** | **france_iptv_output_aco_wls_rank_r14_11425.json** |
+| r15 | 10895 | france_iptv_output_aco_wls_rank_r15_10895.json |
+| r16 | 10992 | france_iptv_output_aco_wls_rank_r16_10992.json |
+| r17 | 10992 | france_iptv_output_aco_wls_rank_r17_10992.json |
+| r18 | 10992 | france_iptv_output_aco_wls_rank_r18_10992.json |
+| r19 | 10992 | france_iptv_output_aco_wls_rank_r19_10992.json |
+| r20 | 10989 | france_iptv_output_aco_wls_rank_r20_10989.json |
+| r21 | 11049 | france_iptv_output_aco_wls_rank_r21_11049.json |
+| r22 | 10904 | france_iptv_output_aco_wls_rank_r22_10904.json |
 
 </details>
 
 <details>
-<summary><strong>germany_tv</strong> - 12 runs, best score 1558 (r12)</summary>
+<summary><strong>germany_tv</strong> - 12 runs, best score 1573 (r12)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 1518 | germany_tv_output_aco_localsearch_rank_r11_1518.json |
-| **r12** | **1558** | **germany_tv_output_aco_localsearch_rank_r12_1558.json** |
-| r13 | 1500 | germany_tv_output_aco_localsearch_rank_r13_1500.json |
-| r14 | 1533 | germany_tv_output_aco_localsearch_rank_r14_1533.json |
-| r15 | 1548 | germany_tv_output_aco_localsearch_rank_r15_1548.json |
-| r16 | 1548 | germany_tv_output_aco_localsearch_rank_r16_1548.json |
-| r17 | 1533 | germany_tv_output_aco_localsearch_rank_r17_1533.json |
-| r18 | 1548 | germany_tv_output_aco_localsearch_rank_r18_1548.json |
-| r19 | 1533 | germany_tv_output_aco_localsearch_rank_r19_1533.json |
-| r20 | 1500 | germany_tv_output_aco_localsearch_rank_r20_1500.json |
-| r21 | 1548 | germany_tv_output_aco_localsearch_rank_r21_1548.json |
-| r22 | 1548 | germany_tv_output_aco_localsearch_rank_r22_1548.json |
+| r11 | 1553 | germany_tv_output_aco_wls_rank_r11_1553.json |
+| **r12** | **1573** | **germany_tv_output_aco_wls_rank_r12_1573.json** |
+| r13 | 1553 | germany_tv_output_aco_wls_rank_r13_1553.json |
+| r14 | 1553 | germany_tv_output_aco_wls_rank_r14_1553.json |
+| r15 | 1553 | germany_tv_output_aco_wls_rank_r15_1553.json |
+| r16 | 1553 | germany_tv_output_aco_wls_rank_r16_1553.json |
+| r17 | 1553 | germany_tv_output_aco_wls_rank_r17_1553.json |
+| r18 | 1553 | germany_tv_output_aco_wls_rank_r18_1553.json |
+| r19 | 1553 | germany_tv_output_aco_wls_rank_r19_1553.json |
+| r20 | 1553 | germany_tv_output_aco_wls_rank_r20_1553.json |
+| r21 | 1553 | germany_tv_output_aco_wls_rank_r21_1553.json |
+| r22 | 1553 | germany_tv_output_aco_wls_rank_r22_1553.json |
 
 </details>
 
 <details>
-<summary><strong>kosovo_tv</strong> - 12 runs, best score 2577 (r12)</summary>
+<summary><strong>kosovo_tv</strong> - 12 runs, best score 2591 (r11)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 2572 | kosovo_tv_output_aco_localsearch_rank_r11_2572.json |
-| **r12** | **2577** | **kosovo_tv_output_aco_localsearch_rank_r12_2577.json** |
-| r13 | 2573 | kosovo_tv_output_aco_localsearch_rank_r13_2573.json |
-| r14 | 2573 | kosovo_tv_output_aco_localsearch_rank_r14_2573.json |
-| r15 | 2573 | kosovo_tv_output_aco_localsearch_rank_r15_2573.json |
-| r16 | 2573 | kosovo_tv_output_aco_localsearch_rank_r16_2573.json |
-| r17 | 2572 | kosovo_tv_output_aco_localsearch_rank_r17_2572.json |
-| r18 | 2572 | kosovo_tv_output_aco_localsearch_rank_r18_2572.json |
-| r19 | 2572 | kosovo_tv_output_aco_localsearch_rank_r19_2572.json |
-| r20 | 2573 | kosovo_tv_output_aco_localsearch_rank_r20_2573.json |
-| r21 | 2572 | kosovo_tv_output_aco_localsearch_rank_r21_2572.json |
-| r22 | 2572 | kosovo_tv_output_aco_localsearch_rank_r22_2572.json |
+| **r11** | **2591** | **kosovo_tv_output_aco_wls_rank_r11_2591.json** |
+| r12 | 2591 | kosovo_tv_output_aco_wls_rank_r12_2591.json |
+| r13 | 2591 | kosovo_tv_output_aco_wls_rank_r13_2591.json |
+| r14 | 2591 | kosovo_tv_output_aco_wls_rank_r14_2591.json |
+| r15 | 2591 | kosovo_tv_output_aco_wls_rank_r15_2591.json |
+| r16 | 2591 | kosovo_tv_output_aco_wls_rank_r16_2591.json |
+| r17 | 2591 | kosovo_tv_output_aco_wls_rank_r17_2591.json |
+| r18 | 2591 | kosovo_tv_output_aco_wls_rank_r18_2591.json |
+| r19 | 2591 | kosovo_tv_output_aco_wls_rank_r19_2591.json |
+| r20 | 2591 | kosovo_tv_output_aco_wls_rank_r20_2591.json |
+| r21 | 2591 | kosovo_tv_output_aco_wls_rank_r21_2591.json |
+| r22 | 2591 | kosovo_tv_output_aco_wls_rank_r22_2591.json |
 
 </details>
 
 <details>
-<summary><strong>netherlands_tv</strong> - 12 runs, best score 2620 (r19)</summary>
+<summary><strong>netherlands_tv</strong> - 12 runs, best score 2625 (r17)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 2613 | netherlands_tv_output_aco_localsearch_rank_r11_2613.json |
-| r12 | 2615 | netherlands_tv_output_aco_localsearch_rank_r12_2615.json |
-| r13 | 2608 | netherlands_tv_output_aco_localsearch_rank_r13_2608.json |
-| r14 | 2608 | netherlands_tv_output_aco_localsearch_rank_r14_2608.json |
-| r15 | 2610 | netherlands_tv_output_aco_localsearch_rank_r15_2610.json |
-| r16 | 2610 | netherlands_tv_output_aco_localsearch_rank_r16_2610.json |
-| r17 | 2615 | netherlands_tv_output_aco_localsearch_rank_r17_2615.json |
-| r18 | 2608 | netherlands_tv_output_aco_localsearch_rank_r18_2608.json |
-| **r19** | **2620** | **netherlands_tv_output_aco_localsearch_rank_r19_2620.json** |
-| r20 | 2610 | netherlands_tv_output_aco_localsearch_rank_r20_2610.json |
-| r21 | 2608 | netherlands_tv_output_aco_localsearch_rank_r21_2608.json |
-| r22 | 2608 | netherlands_tv_output_aco_localsearch_rank_r22_2608.json |
+| r11 | 2618 | netherlands_tv_output_aco_wls_rank_r11_2618.json |
+| r12 | 2620 | netherlands_tv_output_aco_wls_rank_r12_2620.json |
+| r13 | 2618 | netherlands_tv_output_aco_wls_rank_r13_2618.json |
+| r14 | 2618 | netherlands_tv_output_aco_wls_rank_r14_2618.json |
+| r15 | 2618 | netherlands_tv_output_aco_wls_rank_r15_2618.json |
+| r16 | 2618 | netherlands_tv_output_aco_wls_rank_r16_2618.json |
+| **r17** | **2625** | **netherlands_tv_output_aco_wls_rank_r17_2625.json** |
+| r18 | 2618 | netherlands_tv_output_aco_wls_rank_r18_2618.json |
+| r19 | 2625 | netherlands_tv_output_aco_wls_rank_r19_2625.json |
+| r20 | 2618 | netherlands_tv_output_aco_wls_rank_r20_2618.json |
+| r21 | 2618 | netherlands_tv_output_aco_wls_rank_r21_2618.json |
+| r22 | 2618 | netherlands_tv_output_aco_wls_rank_r22_2618.json |
 
 </details>
 
 <details>
-<summary><strong>singapore_pw</strong> - 12 runs, best score 7076 (r22)</summary>
+<summary><strong>singapore_pw</strong> - 12 runs, best score 7029 (r17)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 6884 | singapore_pw_output_aco_localsearch_rank_r11_6884.json |
-| r12 | 6903 | singapore_pw_output_aco_localsearch_rank_r12_6903.json |
-| r13 | 6861 | singapore_pw_output_aco_localsearch_rank_r13_6861.json |
-| r14 | 6847 | singapore_pw_output_aco_localsearch_rank_r14_6847.json |
-| r15 | 6925 | singapore_pw_output_aco_localsearch_rank_r15_6925.json |
-| r16 | 6932 | singapore_pw_output_aco_localsearch_rank_r16_6932.json |
-| r17 | 6913 | singapore_pw_output_aco_localsearch_rank_r17_6913.json |
-| r18 | 6913 | singapore_pw_output_aco_localsearch_rank_r18_6913.json |
-| r19 | 6953 | singapore_pw_output_aco_localsearch_rank_r19_6953.json |
-| r20 | 6824 | singapore_pw_output_aco_localsearch_rank_r20_6824.json |
-| r21 | 6810 | singapore_pw_output_aco_localsearch_rank_r21_6810.json |
-| **r22** | **7076** | **singapore_pw_output_aco_localsearch_rank_r22_7076.json** |
+| r11 | 7004 | singapore_pw_output_aco_wls_rank_r11_7004.json |
+| r12 | 6984 | singapore_pw_output_aco_wls_rank_r12_6984.json |
+| r13 | 6845 | singapore_pw_output_aco_wls_rank_r13_6845.json |
+| r14 | 6845 | singapore_pw_output_aco_wls_rank_r14_6845.json |
+| r15 | 6845 | singapore_pw_output_aco_wls_rank_r15_6845.json |
+| r16 | 6851 | singapore_pw_output_aco_wls_rank_r16_6851.json |
+| **r17** | **7029** | **singapore_pw_output_aco_wls_rank_r17_7029.json** |
+| r18 | 7029 | singapore_pw_output_aco_wls_rank_r18_7029.json |
+| r19 | 6966 | singapore_pw_output_aco_wls_rank_r19_6966.json |
+| r20 | 6867 | singapore_pw_output_aco_wls_rank_r20_6867.json |
+| r21 | 6901 | singapore_pw_output_aco_wls_rank_r21_6901.json |
+| r22 | 6971 | singapore_pw_output_aco_wls_rank_r22_6971.json |
 
 </details>
 
 <details>
-<summary><strong>spain_iptv</strong> - 12 runs, best score 6871 (r20)</summary>
+<summary><strong>spain_iptv</strong> - 12 runs, best score 7097 (r16)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 6672 | spain_iptv_output_aco_localsearch_rank_r11_6672.json |
-| r12 | 6687 | spain_iptv_output_aco_localsearch_rank_r12_6687.json |
-| r13 | 6713 | spain_iptv_output_aco_localsearch_rank_r13_6713.json |
-| r14 | 6720 | spain_iptv_output_aco_localsearch_rank_r14_6720.json |
-| r15 | 6745 | spain_iptv_output_aco_localsearch_rank_r15_6745.json |
-| r16 | 6684 | spain_iptv_output_aco_localsearch_rank_r16_6684.json |
-| r17 | 6800 | spain_iptv_output_aco_localsearch_rank_r17_6800.json |
-| r18 | 6783 | spain_iptv_output_aco_localsearch_rank_r18_6783.json |
-| r19 | 6782 | spain_iptv_output_aco_localsearch_rank_r19_6782.json |
-| **r20** | **6871** | **spain_iptv_output_aco_localsearch_rank_r20_6871.json** |
-| r21 | 6773 | spain_iptv_output_aco_localsearch_rank_r21_6773.json |
-| r22 | 6730 | spain_iptv_output_aco_localsearch_rank_r22_6730.json |
+| r11 | 6779 | spain_iptv_output_aco_wls_rank_r11_6779.json |
+| r12 | 6779 | spain_iptv_output_aco_wls_rank_r12_6779.json |
+| r13 | 7022 | spain_iptv_output_aco_wls_rank_r13_7022.json |
+| r14 | 6779 | spain_iptv_output_aco_wls_rank_r14_6779.json |
+| r15 | 6997 | spain_iptv_output_aco_wls_rank_r15_6997.json |
+| **r16** | **7097** | **spain_iptv_output_aco_wls_rank_r16_7097.json** |
+| r17 | 6990 | spain_iptv_output_aco_wls_rank_r17_6990.json |
+| r18 | 6973 | spain_iptv_output_aco_wls_rank_r18_6973.json |
+| r19 | 6987 | spain_iptv_output_aco_wls_rank_r19_6987.json |
+| r20 | 6959 | spain_iptv_output_aco_wls_rank_r20_6959.json |
+| r21 | 6986 | spain_iptv_output_aco_wls_rank_r21_6986.json |
+| r22 | 7031 | spain_iptv_output_aco_wls_rank_r22_7031.json |
 
 </details>
 
 <details>
-<summary><strong>toy</strong> - 12 runs, best score 360 (r11-r22)</summary>
+<summary><strong>toy</strong> - 12 runs, best score 360 (r11)</summary>
 
 | Run | Score | Output |
 |---|---:|---|
-| **r11** | **360** | **toy_output_aco_localsearch_rank_r11_360.json** |
-| r12 | 360 | toy_output_aco_localsearch_rank_r12_360.json |
-| r13 | 360 | toy_output_aco_localsearch_rank_r13_360.json |
-| r14 | 360 | toy_output_aco_localsearch_rank_r14_360.json |
-| r15 | 360 | toy_output_aco_localsearch_rank_r15_360.json |
-| r16 | 360 | toy_output_aco_localsearch_rank_r16_360.json |
-| r17 | 360 | toy_output_aco_localsearch_rank_r17_360.json |
-| r18 | 360 | toy_output_aco_localsearch_rank_r18_360.json |
-| r19 | 360 | toy_output_aco_localsearch_rank_r19_360.json |
-| r20 | 360 | toy_output_aco_localsearch_rank_r20_360.json |
-| r21 | 360 | toy_output_aco_localsearch_rank_r21_360.json |
-| r22 | 360 | toy_output_aco_localsearch_rank_r22_360.json |
+| **r11** | **360** | **toy_output_aco_wls_rank_r11_360.json** |
+| r12 | 360 | toy_output_aco_wls_rank_r12_360.json |
+| r13 | 360 | toy_output_aco_wls_rank_r13_360.json |
+| r14 | 360 | toy_output_aco_wls_rank_r14_360.json |
+| r15 | 360 | toy_output_aco_wls_rank_r15_360.json |
+| r16 | 360 | toy_output_aco_wls_rank_r16_360.json |
+| r17 | 360 | toy_output_aco_wls_rank_r17_360.json |
+| r18 | 360 | toy_output_aco_wls_rank_r18_360.json |
+| r19 | 360 | toy_output_aco_wls_rank_r19_360.json |
+| r20 | 360 | toy_output_aco_wls_rank_r20_360.json |
+| r21 | 360 | toy_output_aco_wls_rank_r21_360.json |
+| r22 | 360 | toy_output_aco_wls_rank_r22_360.json |
 
 </details>
 
@@ -712,45 +722,45 @@ Për arsye performance, `uk_iptv` dhe `usa_tv` nuk u përfshinë në këtë raun
 
 | Run | Score | Output |
 |---|---:|---|
-| r11 | 2201 | uk_tv_output_aco_localsearch_rank_r11_2201.json |
-| r12 | 2202 | uk_tv_output_aco_localsearch_rank_r12_2202.json |
-| r13 | 2202 | uk_tv_output_aco_localsearch_rank_r13_2202.json |
-| r14 | 2202 | uk_tv_output_aco_localsearch_rank_r14_2202.json |
-| r15 | 2202 | uk_tv_output_aco_localsearch_rank_r15_2202.json |
-| r16 | 2202 | uk_tv_output_aco_localsearch_rank_r16_2202.json |
-| r17 | 2202 | uk_tv_output_aco_localsearch_rank_r17_2202.json |
-| **r18** | **2209** | **uk_tv_output_aco_localsearch_rank_r18_2209.json** |
-| r19 | 2209 | uk_tv_output_aco_localsearch_rank_r19_2209.json |
-| r20 | 2202 | uk_tv_output_aco_localsearch_rank_r20_2202.json |
-| r21 | 2209 | uk_tv_output_aco_localsearch_rank_r21_2209.json |
-| r22 | 2209 | uk_tv_output_aco_localsearch_rank_r22_2209.json |
+| r11 | 2194 | uk_tv_output_aco_wls_rank_r11_2194.json |
+| r12 | 2194 | uk_tv_output_aco_wls_rank_r12_2194.json |
+| r13 | 2202 | uk_tv_output_aco_wls_rank_r13_2202.json |
+| r14 | 2202 | uk_tv_output_aco_wls_rank_r14_2202.json |
+| r15 | 2202 | uk_tv_output_aco_wls_rank_r15_2202.json |
+| r16 | 2202 | uk_tv_output_aco_wls_rank_r16_2202.json |
+| r17 | 2202 | uk_tv_output_aco_wls_rank_r17_2202.json |
+| **r18** | **2209** | **uk_tv_output_aco_wls_rank_r18_2209.json** |
+| r19 | 2209 | uk_tv_output_aco_wls_rank_r19_2209.json |
+| r20 | 2202 | uk_tv_output_aco_wls_rank_r20_2202.json |
+| r21 | 2209 | uk_tv_output_aco_wls_rank_r21_2209.json |
+| r22 | 2209 | uk_tv_output_aco_wls_rank_r22_2209.json |
 
 </details>
 
-## Përmbledhje e ACO me Local Search
+## Përmbledhje e ACO me Window Local Search
 
-| Instance | Best ACO | Best ACO + Local Search | Ndryshimi |
+| Instance | Best ACO | Best ACO + WLS | Ndryshimi |
 |---|---:|---:|---:|
-| australia_iptv | 4833 | 4890 | +57 |
+| australia_iptv | 4833 | 4968 | +135 |
 | canada_pw | 5972 | 5938 | -34 |
-| china_pw | 2830 | 2837 | +7 |
+| china_pw | 2830 | 2869 | +39 |
 | croatia_tv | 2203 | 2203 | 0 |
-| france_iptv | 11417 | 11026 | -391 |
-| germany_tv | 1553 | 1558 | +5 |
-| kosovo_tv | 2572 | 2577 | +5 |
-| netherlands_tv | 2613 | 2620 | +7 |
-| singapore_pw | 7152 | 7076 | -76 |
-| spain_iptv | 6727 | 6871 | +144 |
+| france_iptv | 11417 | 11425 | +8 |
+| germany_tv | 1553 | 1573 | +20 |
+| kosovo_tv | 2572 | 2591 | +19 |
+| netherlands_tv | 2613 | 2625 | +12 |
+| singapore_pw | 7152 | 7029 | -123 |
+| spain_iptv | 6727 | 7097 | +370 |
 | toy | 360 | 360 | 0 |
 | uk_tv | 2202 | 2209 | +7 |
 
-Local search nuk garanton gjithmonë rezultat më të lartë se ACO pa local search, sepse ai rindërton vetëm pjesën pas weakest-window dhe pranon vetëm nëse kandidati lokal e kalon zgjidhjen e atij run-i. Megjithatë, në disa instanca ai e gjeti rezultat më të mirë se ACO-ja e mëparshme, sidomos te `australia_iptv`, `spain_iptv`, `netherlands_tv`, `germany_tv`, `kosovo_tv` dhe `uk_tv`.
+Window Local Search nuk garanton që çdo run të kalojë rezultatin historik më të mirë të ACO-së, sepse ai nis nga `global_best` i run-it aktual dhe pranon vetëm përmirësime lokale të atij orari. Megjithatë, në këtë raund final ai dha përmirësime të qarta në shumicën e instancave, sidomos te `australia_iptv`, `china_pw`, `france_iptv`, `germany_tv`, `kosovo_tv`, `netherlands_tv`, `spain_iptv` dhe `uk_tv`.
 
 ## Matrica e Parametrave dhe Mesatarizimi
 
 Për raundin final u përdor e njëjta matricë parametrash për instancat e ekzekutuara. Kjo e bën krahasimin më të drejtë, sepse secila instancë provohet me të njëjtat konfigurime `r11-r22`; ndryshon vetëm `seed`, i cili bazohet në instance.
 
-Kjo matricë gjendet në tri vende të sinkronizuara: në skriptën `aco_localsearch_all_runs.ps1`, në TSV-të për Excel dhe në tabelën më poshtë. Qëllimi është që rezultatet të jenë të riprodhueshme dhe të lehta për t'u kontrolluar gjatë prezantimit.
+Kjo matricë gjendet në skriptën finale `aco_wls_all_runs.ps1` dhe në tabelën më poshtë. Qëllimi është që rezultatet të jenë të riprodhueshme dhe të lehta për t'u kontrolluar gjatë prezantimit. File-t e mëparshëm `aco_localsearch_*` mbeten si artefakte të eksperimentit të vjetër dhe nuk përfaqësojnë versionin final WLS.
 
 | Run | Ants | Iter | Alpha | Beta | Rho | Cap | Exploit | Memory |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -767,16 +777,16 @@ Kjo matricë gjendet në tri vende të sinkronizuara: në skriptën `aco_localse
 | r21 | 14 | 10 | 1.3 | 2.0 | 0.15 | 10 | 0.85 | 0.70 |
 | r22 | 16 | 10 | 1.3 | 2.0 | 0.15 | 10 | 0.85 | 0.70 |
 
-Mesatarja e matricës së parametrave është:
+Matrica e mesatares së parametrave është paraqitur më poshtë. Për parametrat diskretë që në kod pranohen vetëm si integer (`ants`, `iterations`, `candidate_cap`), vlera është shënuar si numër i plotë i përdorshëm, jo si decimal matematikor.
 
-| Parametri | Mesatarja |
+| Parametri | Vlera mesatare e përdorshme |
 |---|---:|
-| Ants | 14.50 |
-| Iterations | 10.33 |
+| Ants | 14 |
+| Iterations | 10 |
 | Alpha | 1.29 |
 | Beta | 2.00 |
 | Rho | 0.14 |
-| Candidate cap | 10.17 |
+| Candidate cap | 10 |
 | Exploitation probability | 0.81 |
 | Memory strength | 0.53 |
 
@@ -812,6 +822,18 @@ Ekzekutim ACO me tuning:
 python main.py --algorithm aco -i data/input/kosovo_tv_input.json -o data/output_aco_tuning/kosovo --run-id r01 --ants 12 --iterations 10 --alpha 1.0 --beta 2.0 --rho 0.15 --candidate-cap 10 --exploitation-prob 0.80 --memory-strength 0.50 --seed 801 --verbose
 ```
 
+Ekzekutim ACO me Window Local Search:
+
+```bash
+python main.py --algorithm aco -i data/input/kosovo_tv_input.json -o data/output_window_local_search/kosovo --run-id r11 --ants 12 --iterations 10 --alpha 1.3 --beta 2.0 --rho 0.10 --candidate-cap 10 --exploitation-prob 0.80 --memory-strength 0.50 --local-search-iters 8 --seed 811 --verbose
+```
+
+Ekzekutim automatik i batch-it final WLS:
+
+```powershell
+.\aco_wls_all_runs.ps1
+```
+
 ## Output-et
 
 Output-et ruhen si JSON dhe përmbajnë listën e programeve të planifikuara:
@@ -834,6 +856,7 @@ Folderët kryesorë të rezultateve:
 - `data/output`: rezultate bazë ose të mëhershme
 - `data/output_randomness`: rezultate të Beam Search me randomness
 - `data/output_aco_tuning`: rezultate të ACO dhe eksperimenteve të tuning
+- `data/output_window_local_search`: rezultate të ACO me Window Local Search
 
 ## Struktura e Projektit
 
@@ -842,6 +865,8 @@ data/input/                       Input JSON files
 data/output/                      Output-et bazë
 data/output_randomness/           Output-et e Beam Search me randomness
 data/output_aco_tuning/           Output-et e ACO tuning
+data/output_window_local_search/  Output-et e ACO me Window Local Search
+aco_wls_all_runs.ps1              Skripta për batch-in final WLS
 models/                           Modelet kryesore të të dhënave
 parser/                           Leximi dhe zgjedhja e input file
 scheduler/beam_search_scheduler.py
@@ -856,5 +881,6 @@ Zgjidhja finale përfshin dy drejtime kryesore optimizimi:
 
 - `Beam Search` me randomness të kontrolluar, i cili eksploron alternativa të afërta me kandidatët më të mirë.
 - `Rank-based ACO`, ku ants ndërtojnë zgjidhje valide, përditësojnë feromonin sipas rankut, përdorin time-transition memory dhe mund të tunohen përmes parametrave të CLI.
+- `Window Local Search`, i cili pas `global_best` të ACO-së përmirëson lokalisht dritaret më të dobëta pa e nisur ACO-në për herë të dytë.
 
-Këto ndryshime e bëjnë projektin më fleksibil për eksperimente dhe më të mbrojtshëm teorikisht, sepse optimizimi nuk bazohet vetëm në randomness, por në heuristikë, feromon, rank-based reinforcement, memory dhe tuning të parametrave.
+Këto ndryshime e bëjnë projektin më fleksibil për eksperimente dhe më të mbrojtshëm teorikisht, sepse optimizimi nuk bazohet vetëm në randomness, por në heuristikë, feromon, rank-based reinforcement, memory, tuning të parametrave dhe përmirësim lokal të kontrolluar.
